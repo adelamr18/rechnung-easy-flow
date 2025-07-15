@@ -1,25 +1,148 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+// Contexts
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+
+// Components
+import Navigation from "@/components/Navigation";
+
+// Pages
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import Dashboard from "@/pages/Dashboard";
+import CreateInvoice from "@/pages/CreateInvoice";
+import UploadExpense from "@/pages/UploadExpense";
+import ExpensesList from "@/pages/ExpensesList";
+import Settings from "@/pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Protected Route wrapper
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <main className="py-6">
+        {children}
+      </main>
+    </div>
+  );
+};
+
+// Public Route wrapper (login/register)
+const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const AppRoutes = () => (
+  <Routes>
+    {/* Public routes */}
+    <Route 
+      path="/login" 
+      element={
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      } 
+    />
+    <Route 
+      path="/register" 
+      element={
+        <PublicRoute>
+          <Register />
+        </PublicRoute>
+      } 
+    />
+
+    {/* Protected routes */}
+    <Route 
+      path="/dashboard" 
+      element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/invoices" 
+      element={
+        <ProtectedRoute>
+          <CreateInvoice />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/invoices/create" 
+      element={
+        <ProtectedRoute>
+          <CreateInvoice />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/expenses" 
+      element={
+        <ProtectedRoute>
+          <ExpensesList />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/expenses/upload" 
+      element={
+        <ProtectedRoute>
+          <UploadExpense />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/settings" 
+      element={
+        <ProtectedRoute>
+          <Settings />
+        </ProtectedRoute>
+      } 
+    />
+
+    {/* Redirect root to dashboard or login */}
+    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    
+    {/* Catch all */}
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <LanguageProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </AuthProvider>
+      </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
