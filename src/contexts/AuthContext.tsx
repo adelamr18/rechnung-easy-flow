@@ -1,9 +1,12 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { apiClient } from '@/lib/api';
 
 interface User {
   id: string;
   email: string;
-  companyName: string;
+  companyName?: string;
+  locale: string;
+  plan: string;
 }
 
 interface AuthContextType {
@@ -12,6 +15,7 @@ interface AuthContextType {
   register: (email: string, password: string, companyName: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
+  refreshAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,54 +26,79 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
-    // Check localStorage for existing session
     const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    const savedRefreshToken = localStorage.getItem('refreshToken');
+    if (savedUser && savedRefreshToken) {
+      const parsed = JSON.parse(savedUser);
+      apiClient.setAccessToken(localStorage.getItem('accessToken'));
+      return parsed;
+    }
+    return null;
   });
 
+  const refreshAuth = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) return;
+
+    try {
+      const response = await apiClient.refreshToken(refreshToken);
+      apiClient.setAccessToken(response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
+      setUser(response.user);
+      localStorage.setItem('user', JSON.stringify(response.user));
+    } catch (error) {
+      // Refresh failed, clear auth
+      logout();
+    }
+  };
+
+  useEffect(() => {
+    // Try to refresh token on mount
+    if (user && localStorage.getItem('refreshToken')) {
+      refreshAuth();
+    }
+  }, []);
+
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulate API call - in real app, this would call your backend
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (email && password) {
-          const mockUser = {
-            id: '1',
-            email: email,
-            companyName: 'Meine Firma'
-          };
-          setUser(mockUser);
-          localStorage.setItem('user', JSON.stringify(mockUser));
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      }, 1000);
-    });
+    try {
+      const response = await apiClient.login(email, password);
+      apiClient.setAccessToken(response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
+      setUser(response.user);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
+    }
   };
 
   const register = async (email: string, password: string, companyName: string): Promise<boolean> => {
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (email && password && companyName) {
-          const mockUser = {
-            id: '1',
-            email: email,
-            companyName: companyName
-          };
-          setUser(mockUser);
-          localStorage.setItem('user', JSON.stringify(mockUser));
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      }, 1000);
-    });
+    try {
+      const response = await apiClient.register(email, password, companyName);
+      apiClient.setAccessToken(response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
+      setUser(response.user);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      return true;
+    } catch (error) {
+      console.error('Register error:', error);
+      return false;
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await apiClient.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      apiClient.setAccessToken(null);
+    }
   };
 
   const value = {
@@ -77,7 +106,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
+    refreshAuth,
   };
 
   return (

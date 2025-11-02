@@ -19,55 +19,40 @@ const CreateInvoice: React.FC = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate PDF generation
-    setTimeout(() => {
-      // Create a simple "PDF" download
-      const invoiceData = {
-        invoiceNumber: `INV-${Date.now()}`,
-        date: date,
-        company: user?.companyName,
-        customer: customerName,
-        service: serviceDescription,
-        amount: amount,
-        legal: "Gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen."
-      };
-
-      const content = `
-RECHNUNG ${invoiceData.invoiceNumber}
-
-Datum: ${new Date(date).toLocaleDateString('de-DE')}
-Von: ${invoiceData.company}
-An: ${customerName}
-
-Leistung: ${serviceDescription}
-Betrag: ${amount}€
-
-${invoiceData.legal}
-      `.trim();
-
-      const blob = new Blob([content], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Rechnung_${invoiceData.invoiceNumber}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+    try {
+      const { apiClient } = await import('@/lib/api');
+      const invoiceDate = date.split('T')[0]; // Convert to YYYY-MM-DD
+      const result = await apiClient.createInvoice({
+        customerName,
+        serviceDescription,
+        amount: parseFloat(amount),
+        invoiceDate,
+      });
 
       toast({
         title: t('invoice.created'),
         description: t('invoice.createdDesc'),
       });
 
+      // Download PDF
+      if (result.downloadUrl) {
+        window.open(result.downloadUrl, '_blank');
+      }
+
       // Reset form
       setCustomerName('');
       setServiceDescription('');
       setAmount('');
       setDate(new Date().toISOString().split('T')[0]);
-      
+    } catch (error: any) {
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.errorOccurred'),
+        variant: 'destructive',
+      });
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   return (

@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Camera, Upload, Euro, FileText, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
+import { apiClient } from '@/lib/api';
 
 const UploadExpense: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -14,6 +16,7 @@ const UploadExpense: React.FC = () => {
 
   const { t } = useLanguage();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
@@ -47,8 +50,15 @@ const UploadExpense: React.FC = () => {
 
     setLoading(true);
 
-    // Simulate saving expense
-    setTimeout(() => {
+    try {
+      const formData = new FormData();
+      formData.append('receipt', selectedFile);
+      if (amount) formData.append('amount', amount);
+      if (note) formData.append('note', note);
+      formData.append('expenseDate', new Date().toISOString().split('T')[0]);
+
+      await apiClient.createExpense(formData);
+
       toast({
         title: t('expenses.saved'),
         description: t('expenses.savedDesc'),
@@ -60,8 +70,17 @@ const UploadExpense: React.FC = () => {
       setAmount('');
       setNote('');
       
+      // Navigate to expenses list
+      setTimeout(() => navigate('/expenses'), 1000);
+    } catch (error: any) {
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.errorOccurred'),
+        variant: 'destructive',
+      });
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (

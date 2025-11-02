@@ -1,29 +1,50 @@
-import React from 'react';
-import { TrendingUp, TrendingDown, DollarSign, FileText, Receipt, Plus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { TrendingUp, TrendingDown, DollarSign, FileText, Receipt } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
-
-// Mock data for demo
-const monthlyData = [
-  { month: 'Jan', income: 2400, expenses: 1200 },
-  { month: 'Feb', income: 1800, expenses: 900 },
-  { month: 'Mar', income: 3200, expenses: 1600 },
-  { month: 'Apr', income: 2800, expenses: 1400 },
-  { month: 'Mai', income: 3600, expenses: 1800 },
-  { month: 'Jun', income: 4200, expenses: 2100 },
-];
+import { apiClient } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard: React.FC = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [income, setIncome] = useState(0);
+  const [expenses, setExpenses] = useState(0);
+  const [profit, setProfit] = useState(0);
+  const [chartData, setChartData] = useState<Array<{ label: string; income: number; expenses: number }>>([]);
 
-  // Calculate current month values
-  const currentMonth = monthlyData[monthlyData.length - 1];
-  const income = currentMonth.income;
-  const expenses = currentMonth.expenses;
-  const profit = income - expenses;
+  useEffect(() => {
+    loadSummary();
+  }, []);
+
+  const loadSummary = async () => {
+    try {
+      const summary = await apiClient.getMonthlySummary();
+      setIncome(summary.income);
+      setExpenses(summary.expenses);
+      setProfit(summary.profit);
+      
+      // Transform chart data
+      const transformed = summary.chart.map(point => ({
+        month: point.label.split(' ')[0],
+        income: point.income,
+        expenses: point.expenses,
+      }));
+      setChartData(transformed);
+    } catch (error: any) {
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.errorOccurred'),
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const stats = [
     {
@@ -76,7 +97,7 @@ const Dashboard: React.FC = () => {
               {t('dashboard.welcome')}, {user?.companyName}!
             </h1>
             <p className="text-muted-foreground text-lg mt-2">
-              {t('dashboard.thisMonth')} - Juni 2024
+              {t('dashboard.thisMonth')} - {new Date().toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
             </p>
           </div>
           <div className="hidden md:block">
@@ -114,32 +135,38 @@ const Dashboard: React.FC = () => {
           {t('dashboard.monthlyOverview')}
         </h3>
         <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis 
-                dataKey="month" 
-                stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-              />
-              <YAxis 
-                stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-              />
-              <Bar 
-                dataKey="income" 
-                fill="hsl(var(--success))" 
-                name="Einnahmen"
-                radius={[4, 4, 0, 0]}
-              />
-              <Bar 
-                dataKey="expenses" 
-                fill="hsl(var(--warning))" 
-                name="Ausgaben"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="month" 
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                />
+                <YAxis 
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                />
+                <Bar 
+                  dataKey="income" 
+                  fill="hsl(var(--success))" 
+                  name="Einnahmen"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar 
+                  dataKey="expenses" 
+                  fill="hsl(var(--warning))" 
+                  name="Ausgaben"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 

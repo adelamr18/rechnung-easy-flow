@@ -1,12 +1,58 @@
-import React from 'react';
-import { Settings as SettingsIcon, Crown, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings as SettingsIcon, Crown, Check, Loader } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { apiClient } from '@/lib/api';
 
 const Settings: React.FC = () => {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, refreshAuth } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState(user?.plan || 'free');
+
+  useEffect(() => {
+    // Check URL params for Stripe success
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      toast({
+        title: t('toast.success'),
+        description: 'Upgrade successful!',
+      });
+      refreshAuth();
+      window.history.replaceState({}, '', '/settings');
+    } else if (params.get('canceled') === 'true') {
+      toast({
+        title: t('toast.error'),
+        description: 'Payment canceled',
+        variant: 'destructive',
+      });
+      window.history.replaceState({}, '', '/settings');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      setCurrentPlan(user.plan);
+    }
+  }, [user]);
+
+  const handleUpgrade = async () => {
+    setLoading(true);
+    try {
+      const { url } = await apiClient.createCheckout();
+      window.location.href = url;
+    } catch (error: any) {
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.errorOccurred'),
+        variant: 'destructive',
+      });
+      setLoading(false);
+    }
+  };
 
   const plans = [
     {
@@ -24,7 +70,7 @@ const Settings: React.FC = () => {
     },
     {
       name: t('settings.pro'),
-      price: '9,99€',
+      price: '7€',
       period: t('settings.perMonth'),
       features: [
         t('settings.feature5'),
@@ -108,7 +154,7 @@ const Settings: React.FC = () => {
                   : 'border-border bg-background'
               }`}
             >
-              {plan.current && (
+              {currentPlan === (plan.name === t('settings.free') ? 'free' : 'pro') && (
                 <div className="absolute -top-3 left-6 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
                   {t('settings.currentPlan')}
                 </div>
@@ -139,10 +185,16 @@ const Settings: React.FC = () => {
 
               <button
                 className={`btn-large ${plan.color} w-full`}
-                disabled={plan.current}
+                disabled={currentPlan === (plan.name === t('settings.free') ? 'free' : 'pro') || loading}
+                onClick={plan.name === t('settings.pro') && currentPlan !== 'pro' ? handleUpgrade : undefined}
               >
-                {plan.current ? (
+                {currentPlan === (plan.name === t('settings.free') ? 'free' : 'pro') ? (
                   t('settings.currentPlan')
+                ) : loading ? (
+                  <>
+                    <Loader className="h-5 w-5 animate-spin" />
+                    {t('expenses.saving')}
+                  </>
                 ) : (
                   <>
                     <Crown className="h-5 w-5" />

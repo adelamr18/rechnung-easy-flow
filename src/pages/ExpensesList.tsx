@@ -1,35 +1,62 @@
-import React from 'react';
-import { Receipt, Euro, Calendar, FileText } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Receipt, Euro, Calendar, FileText, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useToast } from '@/hooks/use-toast';
+import { apiClient } from '@/lib/api';
 
-// Mock data for demo
-const expenses = [
-  {
-    id: '1',
-    date: '2024-06-15',
-    amount: 25.50,
-    note: 'Büromaterial',
-    imageUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120"><rect width="200" height="120" fill="%23f3f4f6"/><text x="100" y="60" text-anchor="middle" dy="0.3em" font-family="Arial" font-size="14" fill="%23666">Receipt Image</text></svg>'
-  },
-  {
-    id: '2',
-    date: '2024-06-12',
-    amount: 45.80,
-    note: 'Tanken',
-    imageUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120"><rect width="200" height="120" fill="%23f3f4f6"/><text x="100" y="60" text-anchor="middle" dy="0.3em" font-family="Arial" font-size="14" fill="%23666">Receipt Image</text></svg>'
-  },
-  {
-    id: '3',
-    date: '2024-06-10',
-    amount: 12.30,
-    note: 'Kaffee für Besprechung',
-    imageUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120"><rect width="200" height="120" fill="%23f3f4f6"/><text x="100" y="60" text-anchor="middle" dy="0.3em" font-family="Arial" font-size="14" fill="%23666">Receipt Image</text></svg>'
-  },
-];
+interface Expense {
+  id: string;
+  amount: number;
+  note: string | null;
+  receiptUrl: string | null;
+  expenseDate: string;
+  createdAt: string;
+}
 
 const ExpensesList: React.FC = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadExpenses();
+  }, []);
+
+  const loadExpenses = async () => {
+    try {
+      const data = await apiClient.getExpenses();
+      setExpenses(data);
+    } catch (error: any) {
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.errorOccurred'),
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm(t('actions.delete') + '?')) return;
+
+    try {
+      await apiClient.deleteExpense(id);
+      setExpenses(expenses.filter(e => e.id !== id));
+      toast({
+        title: t('toast.success'),
+        description: t('expenses.savedDesc'),
+      });
+    } catch (error: any) {
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.errorOccurred'),
+        variant: 'destructive',
+      });
+    }
+  };
 
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
 
@@ -66,7 +93,11 @@ const ExpensesList: React.FC = () => {
 
       {/* Expenses List */}
       <div className="space-y-4">
-        {expenses.length === 0 ? (
+        {loading ? (
+          <div className="card-warm text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          </div>
+        ) : expenses.length === 0 ? (
           <div className="card-warm text-center py-12">
             <Receipt className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">
@@ -82,11 +113,17 @@ const ExpensesList: React.FC = () => {
               <div className="flex items-center gap-4">
                 {/* Receipt Image */}
                 <div className="flex-shrink-0">
-                  <img
-                    src={expense.imageUrl}
-                    alt="Receipt"
-                    className="w-20 h-20 rounded-lg object-cover border border-border"
-                  />
+                  {expense.receiptUrl ? (
+                    <img
+                      src={expense.receiptUrl}
+                      alt="Receipt"
+                      className="w-20 h-20 rounded-lg object-cover border border-border"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-lg border border-border bg-muted flex items-center justify-center">
+                      <Receipt className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
                 </div>
 
                 {/* Expense Details */}
@@ -95,7 +132,7 @@ const ExpensesList: React.FC = () => {
                     <div>
                       <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
                         <Calendar className="h-4 w-4" />
-                        {new Date(expense.date).toLocaleDateString('de-DE')}
+                        {new Date(expense.expenseDate).toLocaleDateString('de-DE')}
                       </div>
                       
                       {expense.note && (
@@ -106,11 +143,19 @@ const ExpensesList: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="text-right">
-                      <div className="flex items-center gap-1 text-warning font-bold text-xl">
-                        <Euro className="h-5 w-5" />
-                        {expense.amount.toFixed(2)}
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <div className="flex items-center gap-1 text-warning font-bold text-xl">
+                          <Euro className="h-5 w-5" />
+                          {expense.amount.toFixed(2)}
+                        </div>
                       </div>
+                      <button
+                        onClick={() => handleDelete(expense.id)}
+                        className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
                     </div>
                   </div>
                 </div>
