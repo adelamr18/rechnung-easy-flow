@@ -52,14 +52,14 @@ const Dashboard: React.FC = () => {
   const quickActions = [
     {
       title: t('invoice.create'),
-      description: 'Neue Rechnung erstellen',
+      description: t('dashboard.newInvoiceDesc'),
       icon: FileText,
       to: '/invoices/create',
       color: 'btn-primary'
     },
     {
       title: t('expenses.upload'),
-      description: 'Ausgabe hinzufügen',
+      description: t('dashboard.newExpenseDesc'),
       icon: Receipt,
       to: '/expenses/upload',
       color: 'btn-secondary'
@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              Willkommen, {user?.companyName}!
+              {t('dashboard.welcome')}, {user?.companyName}!
             </h1>
             <p className="text-muted-foreground text-lg mt-2">
               {t('dashboard.thisMonth')} - Juni 2024
@@ -111,7 +111,7 @@ const Dashboard: React.FC = () => {
       {/* Chart */}
       <div className="card-warm">
         <h3 className="text-xl font-semibold text-foreground mb-6">
-          Monatliche Übersicht
+          {t('dashboard.monthlyOverview')}
         </h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
@@ -146,7 +146,7 @@ const Dashboard: React.FC = () => {
       {/* Quick Actions */}
       <div className="card-warm">
         <h3 className="text-xl font-semibold text-foreground mb-6">
-          Schnellaktionen
+          {t('dashboard.quickActions')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {quickActions.map((action) => (

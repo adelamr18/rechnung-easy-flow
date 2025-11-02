@@ -10,29 +10,29 @@ const Settings: React.FC = () => {
 
   const plans = [
     {
-      name: 'Kostenlos',
+      name: t('settings.free'),
       price: '0€',
-      period: '/Monat',
+      period: t('settings.perMonth'),
       features: [
-        '5 Rechnungen pro Monat',
-        '10 Ausgaben-Uploads',
-        'Basis PDF-Export',
-        'Email Support'
+        t('settings.feature1'),
+        t('settings.feature2'),
+        t('settings.feature3'),
+        t('settings.feature4')
       ],
       current: true,
       color: 'btn-secondary'
     },
     {
-      name: 'Pro',
+      name: t('settings.pro'),
       price: '9,99€',
-      period: '/Monat',
+      period: t('settings.perMonth'),
       features: [
-        'Unbegrenzte Rechnungen',
-        'Unbegrenzte Ausgaben',
-        'Erweiterte PDF-Vorlagen',
-        'Automatische Backups',
-        'Prioritäts-Support',
-        'Steuer-Export für Steuerberater'
+        t('settings.feature5'),
+        t('settings.feature6'),
+        t('settings.feature7'),
+        t('settings.feature8'),
+        t('settings.feature9'),
+        t('settings.feature10')
       ],
       current: false,
       color: 'btn-primary'
@@ -49,10 +49,10 @@ const Settings: React.FC = () => {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              {t('nav.settings')}
+              {t('settings.title')}
             </h1>
             <p className="text-muted-foreground text-lg">
-              Verwalten Sie Ihr Konto und Abonnement
+              {t('settings.subtitle')}
             </p>
           </div>
         </div>
@@ -61,18 +61,18 @@ const Settings: React.FC = () => {
       {/* Account Info */}
       <div className="card-warm">
         <h2 className="text-xl font-semibold text-foreground mb-4">
-          Kontoinformationen
+          {t('settings.accountInfo')}
         </h2>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">
-              Firmenname
+              {t('auth.companyName')}
             </label>
             <p className="text-lg text-muted-foreground">{user?.companyName}</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">
-              E-Mail
+              {t('auth.email')}
             </label>
             <p className="text-lg text-muted-foreground">{user?.email}</p>
           </div>
@@ -82,11 +82,11 @@ const Settings: React.FC = () => {
       {/* Language Settings */}
       <div className="card-warm">
         <h2 className="text-xl font-semibold text-foreground mb-4">
-          Sprache
+          {t('settings.language')}
         </h2>
         <div className="flex items-center gap-4">
           <label className="text-sm font-medium text-foreground">
-            Interface-Sprache:
+            {t('settings.languageLabel')}
           </label>
           <LanguageSwitcher />
         </div>
@@ -95,7 +95,7 @@ const Settings: React.FC = () => {
       {/* Subscription Plans */}
       <div className="card-warm">
         <h2 className="text-xl font-semibold text-foreground mb-6">
-          Abonnement
+          {t('settings.subscription')}
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -110,7 +110,7 @@ const Settings: React.FC = () => {
             >
               {plan.current && (
                 <div className="absolute -top-3 left-6 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
-                  Aktueller Plan
+                  {t('settings.currentPlan')}
                 </div>
               )}
               
@@ -142,11 +142,11 @@ const Settings: React.FC = () => {
                 disabled={plan.current}
               >
                 {plan.current ? (
-                  'Aktueller Plan'
+                  t('settings.currentPlan')
                 ) : (
                   <>
                     <Crown className="h-5 w-5" />
-                    Upgrade
+                    {t('settings.upgrade')}
                   </>
                 )}
               </button>
@@ -159,7 +159,7 @@ const Settings: React.FC = () => {
       <div className="card-warm">
         <div className="text-center text-sm text-muted-foreground">
           <p>
-            Haben Sie Fragen? Kontaktieren Sie uns unter{' '}
+            {t('settings.contact')}{' '}
             <a href="mailto:support@invoiceeasy.de" className="text-primary hover:text-primary/80">
               support@invoiceeasy.de
             </a>

@@ -22,8 +22,8 @@ const Register: React.FC = () => {
     
     if (password !== confirmPassword) {
       toast({
-        title: "Passwörter stimmen nicht überein",
-        description: "Bitte überprüfen Sie Ihre Passwort-Eingabe.",
+        title: t('auth.passwordsMismatch'),
+        description: t('auth.checkPassword'),
         variant: "destructive",
       });
       return;
@@ -74,7 +74,7 @@ const Register: React.FC = () => {
                 {t('auth.createAccount')}
               </h1>
               <p className="text-muted-foreground text-lg">
-                Starten Sie noch heute
+                {t('auth.startToday')}
               </p>
             </div>
 

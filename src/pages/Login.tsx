@@ -19,25 +19,25 @@ const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
 
-    try {
+      try {
       const success = await login(email, password);
       if (success) {
         toast({
-          title: "Login erfolgreich",
-          description: "Willkommen zurück!",
+          title: t('auth.loginSuccess'),
+          description: t('auth.welcomeBack'),
         });
         navigate('/dashboard');
       } else {
         toast({
-          title: "Login fehlgeschlagen",
-          description: "Bitte überprüfen Sie Ihre Eingaben.",
+          title: t('auth.loginFailed'),
+          description: t('auth.checkInputs'),
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: "Fehler",
-        description: "Ein Fehler ist aufgetreten.",
+        title: t('auth.error'),
+        description: t('auth.errorOccurred'),
         variant: "destructive",
       });
     } finally {
@@ -62,7 +62,7 @@ const Login: React.FC = () => {
                 {t('auth.welcome')}
               </h1>
               <p className="text-muted-foreground text-lg">
-                Melden Sie sich bei Ihrem Konto an
+                {t('auth.signInSubtitle')}
               </p>
             </div>
 

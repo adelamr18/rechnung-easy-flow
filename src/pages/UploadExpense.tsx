@@ -38,8 +38,8 @@ const UploadExpense: React.FC = () => {
     
     if (!selectedFile) {
       toast({
-        title: "Kein Beleg ausgewählt",
-        description: "Bitte laden Sie einen Beleg hoch oder machen Sie ein Foto.",
+        title: t('expenses.noReceiptSelected'),
+        description: t('expenses.pleaseUpload'),
         variant: "destructive",
       });
       return;
@@ -50,8 +50,8 @@ const UploadExpense: React.FC = () => {
     // Simulate saving expense
     setTimeout(() => {
       toast({
-        title: "Ausgabe gespeichert!",
-        description: "Der Beleg wurde erfolgreich hochgeladen.",
+        title: t('expenses.saved'),
+        description: t('expenses.savedDesc'),
       });
 
       // Reset form
@@ -75,7 +75,7 @@ const UploadExpense: React.FC = () => {
             {t('expenses.title')}
           </h1>
           <p className="text-muted-foreground text-lg mt-2">
-            Laden Sie Ihre Belege hoch
+            {t('expenses.subtitle')}
           </p>
         </div>
 
@@ -100,7 +100,7 @@ const UploadExpense: React.FC = () => {
                 className="btn-large btn-secondary w-full"
               >
                 <Upload className="h-6 w-6" />
-                Datei hochladen
+                {t('expenses.uploadFile')}
               </button>
 
               {/* Hidden file inputs */}
@@ -148,7 +148,7 @@ const UploadExpense: React.FC = () => {
 
               <div className="flex items-center justify-center gap-2 text-success">
                 <Check className="h-5 w-5" />
-                <span className="font-medium">Beleg erfolgreich geladen</span>
+                <span className="font-medium">{t('expenses.loadedSuccess')}</span>
               </div>
             </div>
           )}
@@ -200,7 +200,7 @@ const UploadExpense: React.FC = () => {
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  Wird gespeichert...
+                  {t('expenses.saving')}
                 </>
               ) : (
                 <>

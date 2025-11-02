@@ -56,8 +56,8 @@ ${invoiceData.legal}
       URL.revokeObjectURL(url);
 
       toast({
-        title: "Rechnung erstellt!",
-        description: "Die Rechnung wurde erfolgreich als PDF generiert.",
+        title: t('invoice.created'),
+        description: t('invoice.createdDesc'),
       });
 
       // Reset form
@@ -81,7 +81,7 @@ ${invoiceData.legal}
             {t('invoice.create')}
           </h1>
           <p className="text-muted-foreground text-lg mt-2">
-            Neue Rechnung für Ihre Kunden
+            {t('invoice.subtitle')}
           </p>
         </div>
 
@@ -162,8 +162,7 @@ ${invoiceData.legal}
 
           <div className="bg-accent/50 p-4 rounded-lg">
             <p className="text-sm text-accent-foreground">
-              <strong>Rechtlicher Hinweis:</strong> Diese Rechnung wird automatisch mit dem Zusatz 
-              "Gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen." versehen.
+              <strong>{t('invoice.legalNotice')}</strong> {t('invoice.legalText')}
             </p>
           </div>
 
@@ -175,7 +174,7 @@ ${invoiceData.legal}
             {loading ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                PDF wird erstellt...
+                {t('invoice.creating')}
               </>
             ) : (
               <>

@@ -43,11 +43,11 @@ const ExpensesList: React.FC = () => {
               {t('expenses.title')}
             </h1>
             <p className="text-muted-foreground text-lg mt-2">
-              Ihre hochgeladenen Belege
+              {t('expenses.list')}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">Gesamt diesen Monat</p>
+            <p className="text-sm text-muted-foreground">{t('expenses.totalMonth')}</p>
             <p className="text-2xl font-bold text-warning">
               {totalExpenses.toFixed(2)}{t('common.euro')}
             </p>
@@ -61,7 +61,7 @@ const ExpensesList: React.FC = () => {
         className="btn-large btn-primary w-full block text-center"
       >
         <Receipt className="h-6 w-6" />
-        Neue Ausgabe hinzufügen
+        {t('expenses.addNew')}
       </Link>
 
       {/* Expenses List */}
@@ -70,10 +70,10 @@ const ExpensesList: React.FC = () => {
           <div className="card-warm text-center py-12">
             <Receipt className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">
-              Noch keine Ausgaben
+              {t('expenses.noExpenses')}
             </h3>
             <p className="text-muted-foreground">
-              Laden Sie Ihren ersten Beleg hoch, um zu beginnen.
+              {t('expenses.uploadFirst')}
             </p>
           </div>
         ) : (
