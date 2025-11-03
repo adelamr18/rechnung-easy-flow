@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Upload, Euro, FileText, Check } from 'lucide-react';
+import { Camera, Upload, Euro, Check, Loader2, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +11,9 @@ const UploadExpense: React.FC = () => {
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [loading, setLoading] = useState(false);
+  const [analyzingReceipt, setAnalyzingReceipt] = useState(false);
+  const [detectedTotal, setDetectedTotal] = useState<string | null>(null);
+  const [detectedMerchant, setDetectedMerchant] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -18,10 +21,68 @@ const UploadExpense: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const analyzeReceipt = async (file: File) => {
+    setAnalyzingReceipt(true);
+    try {
+      const receipt = await apiClient.analyzeReceipt(file) as {
+        totalAmount?: number | null;
+        merchantName?: string | null;
+        extractedData?: Record<string, string>;
+      };
+
+      let detected = receipt?.totalAmount ?? null;
+
+      const itemsTotal = receipt?.extractedData?.itemsTotal
+        ? Number.parseFloat(receipt.extractedData.itemsTotal)
+        : NaN;
+      if ((!detected || detected <= 0) && !Number.isNaN(itemsTotal)) {
+        detected = itemsTotal;
+      }
+
+      if (detected && detected > 0) {
+        const formatted = detected.toFixed(2);
+        setAmount(formatted);
+        setDetectedTotal(formatted);
+      } else {
+        setDetectedTotal(null);
+      }
+
+      if (receipt?.merchantName) {
+        setDetectedMerchant(receipt.merchantName);
+      } else if (receipt?.extractedData?.merchantName) {
+        setDetectedMerchant(receipt.extractedData.merchantName);
+      } else {
+        setDetectedMerchant(null);
+      }
+
+      if ((!detected || detected <= 0) && !receipt?.totalAmount) {
+        toast({
+          title: 'No total detected automatically',
+          description: 'Please enter the amount manually.',
+        });
+      }
+    } catch (error: any) {
+      setDetectedTotal(null);
+      setDetectedMerchant(null);
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.errorOccurred'),
+        variant: 'destructive',
+      });
+    } finally {
+      setAnalyzingReceipt(false);
+    }
+  };
+
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
+    setAmount('');
+    setNote('');
+    setDetectedTotal(null);
+    setDetectedMerchant(null);
+    void analyzeReceipt(file);
   };
 
   const handleCameraCapture = () => {
@@ -158,6 +219,10 @@ const UploadExpense: React.FC = () => {
                   onClick={() => {
                     setSelectedFile(null);
                     setPreviewUrl('');
+                    setAmount('');
+                    setNote('');
+                    setDetectedTotal(null);
+                    setDetectedMerchant(null);
                   }}
                   className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold"
                 >
@@ -193,6 +258,22 @@ const UploadExpense: React.FC = () => {
                   placeholder="25.50"
                 />
               </div>
+              {analyzingReceipt && (
+                <p className="text-sm text-muted-foreground mt-2 flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Analyzing receipt…
+                </p>
+              )}
+              {detectedTotal && !analyzingReceipt && (
+                <p className="text-sm text-success mt-2">
+                  {`Detected total: €${detectedTotal}`}
+                </p>
+              )}
+              {detectedMerchant && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {`Merchant: ${detectedMerchant}`}
+                </p>
+              )}
             </div>
 
             <div>
@@ -213,7 +294,7 @@ const UploadExpense: React.FC = () => {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || analyzingReceipt}
               className="btn-large btn-success w-full"
             >
               {loading ? (

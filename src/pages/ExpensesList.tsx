@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Receipt, Euro, Calendar, FileText, Trash2 } from 'lucide-react';
+import { Receipt, Euro, Calendar, FileText, Trash2, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -19,15 +19,26 @@ const ExpensesList: React.FC = () => {
   const { toast } = useToast();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
+  const [receiptPreviews, setReceiptPreviews] = useState<Record<string, string>>({});
+  const [deleteTarget, setDeleteTarget] = useState<Expense | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadExpenses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    return () => {
+      Object.values(receiptPreviews).forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [receiptPreviews]);
 
   const loadExpenses = async () => {
     try {
       const data = await apiClient.getExpenses();
       setExpenses(data);
+      await generatePreviews(data);
     } catch (error: any) {
       toast({
         title: t('auth.error'),
@@ -39,15 +50,47 @@ const ExpensesList: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm(t('actions.delete') + '?')) return;
+  const generatePreviews = async (items: Expense[]) => {
+    const previews: Record<string, string> = {};
+
+    await Promise.all(
+      items
+        .filter((expense) => expense.receiptUrl)
+        .map(async (expense) => {
+          try {
+            const blob = await apiClient.fetchExpenseReceipt(expense.id);
+            previews[expense.id] = URL.createObjectURL(blob);
+          } catch (error) {
+            console.error('Failed to load receipt preview', error);
+          }
+        })
+    );
+
+    setReceiptPreviews(previews);
+  };
+
+  const handleDeleteClick = (expense: Expense) => {
+    setDeleteTarget(expense);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
 
     try {
-      await apiClient.deleteExpense(id);
-      setExpenses(expenses.filter(e => e.id !== id));
+      await apiClient.deleteExpense(deleteTarget.id);
+      setExpenses((prev) => prev.filter((e) => e.id !== deleteTarget.id));
+      setReceiptPreviews((prev) => {
+        const next = { ...prev };
+        if (next[deleteTarget.id]) {
+          URL.revokeObjectURL(next[deleteTarget.id]);
+          delete next[deleteTarget.id];
+        }
+        return next;
+      });
       toast({
         title: t('toast.success'),
-        description: t('expenses.savedDesc'),
+        description: t('expenses.deletedDesc'),
       });
     } catch (error: any) {
       toast({
@@ -55,7 +98,14 @@ const ExpensesList: React.FC = () => {
         description: error.message || t('auth.errorOccurred'),
         variant: 'destructive',
       });
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteTarget(null);
   };
 
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
@@ -113,9 +163,9 @@ const ExpensesList: React.FC = () => {
               <div className="flex items-center gap-4">
                 {/* Receipt Image */}
                 <div className="flex-shrink-0">
-                  {expense.receiptUrl ? (
+                  {receiptPreviews[expense.id] ? (
                     <img
-                      src={expense.receiptUrl}
+                      src={receiptPreviews[expense.id]}
                       alt="Receipt"
                       className="w-20 h-20 rounded-lg object-cover border border-border"
                     />
@@ -151,7 +201,7 @@ const ExpensesList: React.FC = () => {
                         </div>
                       </div>
                       <button
-                        onClick={() => handleDelete(expense.id)}
+                        onClick={() => handleDeleteClick(expense)}
                         className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                       >
                         <Trash2 className="h-5 w-5" />
@@ -164,6 +214,36 @@ const ExpensesList: React.FC = () => {
           ))
         )}
       </div>
+
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 backdrop-blur-sm px-4">
+          <div className="card-warm w-full max-w-md">
+            <h2 className="text-xl font-semibold text-foreground">
+              {t('expenses.deleteConfirmTitle')}
+            </h2>
+            <p className="text-muted-foreground mt-3">
+              {t('expenses.deleteConfirmMessage')}
+            </p>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={cancelDelete}
+                className="btn-secondary"
+                disabled={deleting}
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="btn-destructive flex items-center gap-2"
+                disabled={deleting}
+              >
+                {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                {t('actions.delete')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

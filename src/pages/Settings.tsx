@@ -10,39 +10,75 @@ const Settings: React.FC = () => {
   const { t } = useLanguage();
   const { user, refreshAuth } = useAuth();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [currentPlan, setCurrentPlan] = useState(user?.plan || 'free');
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const normalizePlan = (plan?: string | null) => {
+    switch ((plan ?? 'starter').toLowerCase()) {
+      case 'elite':
+        return 'elite';
+      case 'pro':
+        return 'pro';
+      case 'starter':
+      case 'free':
+      default:
+        return 'starter';
+    }
+  };
+
+  const [currentPlan, setCurrentPlan] = useState(() => normalizePlan(user?.plan));
 
   useEffect(() => {
     // Check URL params for Stripe success
     const params = new URLSearchParams(window.location.search);
-    if (params.get('success') === 'true') {
-      toast({
-        title: t('toast.success'),
-        description: 'Upgrade successful!',
-      });
-      refreshAuth();
-      window.history.replaceState({}, '', '/settings');
-    } else if (params.get('canceled') === 'true') {
+    const success = params.get('success') === 'true';
+    const canceled = params.get('canceled') === 'true';
+    const sessionId = params.get('session_id');
+
+    const clearQuery = () => window.history.replaceState({}, '', '/settings');
+
+    if (success) {
+      (async () => {
+        try {
+          if (sessionId) {
+            await apiClient.confirmCheckoutSession(sessionId);
+          }
+          await refreshAuth();
+          toast({
+            title: t('toast.success'),
+            description: 'Upgrade successful!',
+          });
+        } catch (error: any) {
+          toast({
+            title: t('auth.error'),
+            description: error.message || t('auth.errorOccurred'),
+            variant: 'destructive',
+          });
+        } finally {
+          clearQuery();
+        }
+      })();
+    } else if (canceled) {
       toast({
         title: t('toast.error'),
         description: 'Payment canceled',
         variant: 'destructive',
       });
-      window.history.replaceState({}, '', '/settings');
+      clearQuery();
     }
   }, []);
 
   useEffect(() => {
     if (user) {
-      setCurrentPlan(user.plan);
+      setCurrentPlan(normalizePlan(user.plan));
     }
   }, [user]);
 
-  const handleUpgrade = async () => {
-    setLoading(true);
+  const handleUpgrade = async (targetPlan: 'pro' | 'elite') => {
+    setLoadingPlan(targetPlan);
     try {
-      const { url } = await apiClient.createCheckout();
+      const { url } = targetPlan === 'elite'
+        ? await apiClient.createEliteCheckout()
+        : await apiClient.createCheckout();
       window.location.href = url;
     } catch (error: any) {
       toast({
@@ -50,39 +86,53 @@ const Settings: React.FC = () => {
         description: error.message || t('auth.errorOccurred'),
         variant: 'destructive',
       });
-      setLoading(false);
+      setLoadingPlan(null);
     }
   };
 
   const plans = [
     {
-      name: t('settings.free'),
+      id: 'starter',
+      name: t('settings.starter'),
       price: '0€',
       period: t('settings.perMonth'),
       features: [
-        t('settings.feature1'),
-        t('settings.feature2'),
-        t('settings.feature3'),
-        t('settings.feature4')
+        t('settings.starterFeature1'),
+        t('settings.starterFeature2'),
+        t('settings.starterFeature3'),
+        t('settings.starterFeature4'),
       ],
-      current: true,
-      color: 'btn-secondary'
+      color: 'btn-secondary',
+      action: null,
     },
     {
+      id: 'pro',
       name: t('settings.pro'),
-      price: '7€',
+      price: '10€',
       period: t('settings.perMonth'),
       features: [
-        t('settings.feature5'),
-        t('settings.feature6'),
-        t('settings.feature7'),
-        t('settings.feature8'),
-        t('settings.feature9'),
-        t('settings.feature10')
+        t('settings.proFeature1'),
+        t('settings.proFeature2'),
+        t('settings.proFeature3'),
+        t('settings.proFeature4'),
       ],
-      current: false,
-      color: 'btn-primary'
-    }
+      color: 'btn-primary',
+      action: () => handleUpgrade('pro'),
+    },
+    {
+      id: 'elite',
+      name: t('settings.elite'),
+      price: '20€',
+      period: t('settings.perMonth'),
+      features: [
+        t('settings.eliteFeature1'),
+        t('settings.eliteFeature2'),
+        t('settings.eliteFeature3'),
+        t('settings.eliteFeature4'),
+      ],
+      color: 'btn-primary',
+      action: () => handleUpgrade('elite'),
+    },
   ];
 
   return (
@@ -144,26 +194,29 @@ const Settings: React.FC = () => {
           {t('settings.subscription')}
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`relative border-2 rounded-xl p-6 ${
-                plan.current 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-border bg-background'
-              }`}
-            >
-              {currentPlan === (plan.name === t('settings.free') ? 'free' : 'pro') && (
-                <div className="absolute -top-3 left-6 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
-                  {t('settings.currentPlan')}
-                </div>
-              )}
-              
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-foreground mb-2">
-                  {plan.name}
-                </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {plans.map((plan) => {
+            const isCurrent = currentPlan === plan.id;
+            const isLoading = loadingPlan === plan.id;
+            return (
+              <div key={plan.name} className="flex">
+                <div
+                  className={`relative border-2 rounded-xl p-6 flex flex-col w-full ${
+                    isCurrent
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border bg-background'
+                  }`}
+                >
+                  {isCurrent && (
+                    <div className="absolute -top-3 left-6 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
+                      {t('settings.currentPlan')}
+                    </div>
+                  )}
+
+                  <div className="text-center mb-6">
+                    <h3 className="text-xl font-bold text-foreground mb-2">
+                      {plan.name}
+                    </h3>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-3xl font-bold text-foreground">
                     {plan.price}
@@ -174,7 +227,7 @@ const Settings: React.FC = () => {
                 </div>
               </div>
 
-              <ul className="space-y-3 mb-6">
+              <ul className="space-y-3 mb-6 flex-1">
                 {plan.features.map((feature, index) => (
                   <li key={index} className="flex items-center gap-3">
                     <Check className="h-4 w-4 text-success flex-shrink-0" />
@@ -185,25 +238,27 @@ const Settings: React.FC = () => {
 
               <button
                 className={`btn-large ${plan.color} w-full`}
-                disabled={currentPlan === (plan.name === t('settings.free') ? 'free' : 'pro') || loading}
-                onClick={plan.name === t('settings.pro') && currentPlan !== 'pro' ? handleUpgrade : undefined}
+                disabled={isCurrent || isLoading}
+                onClick={!isCurrent && plan.action ? plan.action : undefined}
               >
-                {currentPlan === (plan.name === t('settings.free') ? 'free' : 'pro') ? (
+                {isCurrent ? (
                   t('settings.currentPlan')
-                ) : loading ? (
+                ) : isLoading ? (
                   <>
                     <Loader className="h-5 w-5 animate-spin" />
                     {t('expenses.saving')}
                   </>
-                ) : (
-                  <>
-                    <Crown className="h-5 w-5" />
-                    {t('settings.upgrade')}
-                  </>
-                )}
-              </button>
-            </div>
-          ))}
+                    ) : (
+                      <>
+                        <Crown className="h-5 w-5" />
+                        {t('settings.upgrade')}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

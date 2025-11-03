@@ -59,6 +59,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(() => {
+      refreshAuth().catch(() => {
+        // handled in refreshAuth (logout on failure)
+      });
+    }, 10 * 60 * 1000); // every 10 minutes
+
+    return () => clearInterval(interval);
+  }, [user]);
+
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const response = await apiClient.login(email, password);

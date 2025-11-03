@@ -69,6 +69,18 @@ const translations = {
     'invoice.creating': 'PDF wird erstellt...',
     'invoice.created': 'Rechnung erstellt!',
     'invoice.createdDesc': 'Die Rechnung wurde erfolgreich als PDF generiert.',
+    'invoice.uploadInvoice': 'Rechnung hochladen und analysieren',
+    'invoice.analyzing': 'Analyse läuft...',
+    'invoice.analysisComplete': 'Analyse abgeschlossen',
+    'invoice.analysisCompleteDesc': 'Die Rechnungsdaten wurden ausgefüllt. Bitte überprüfen Sie die Angaben.',
+    'invoice.analysisSummary': 'Erkannte Positionen',
+    'invoice.itemPlaceholder': 'Position',
+    'invoice.additionalItems': 'Weitere Positionen wurden erkannt.',
+    'invoice.uploadHelper': 'Nutzen Sie den OCR-Upload, um Rechnungsdaten automatisch auszufüllen.',
+    'invoice.orEnterManually': 'Oder geben Sie die Daten unten manuell ein.',
+    'invoice.pdfLockedTitle': 'PDF-Export gesperrt',
+    'invoice.pdfLockedDesc': 'Upgrade auf den Pro- oder Elite-Tarif, um Rechnungen als PDF zu generieren.',
+    'invoice.upgradeCta': 'Jetzt upgraden',
     
     // Expenses
     'expenses.title': 'Ausgaben',
@@ -89,6 +101,9 @@ const translations = {
     'expenses.addNew': 'Neue Ausgabe hinzufügen',
     'expenses.noExpenses': 'Noch keine Ausgaben',
     'expenses.uploadFirst': 'Laden Sie Ihren ersten Beleg hoch, um zu beginnen.',
+    'expenses.deleteConfirmTitle': 'Ausgabe löschen?',
+    'expenses.deleteConfirmMessage': 'Möchten Sie diese Ausgabe wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.',
+    'expenses.deletedDesc': 'Die Ausgabe wurde entfernt.',
     
     // Settings
     'settings.title': 'Einstellungen',
@@ -99,20 +114,24 @@ const translations = {
     'settings.subscription': 'Abonnement',
     'settings.currentPlan': 'Aktueller Plan',
     'settings.upgrade': 'Upgrade',
+    'settings.starter': 'Starter',
+    'settings.elite': 'Elite',
     'settings.contact': 'Haben Sie Fragen? Kontaktieren Sie uns unter',
     'settings.free': 'Kostenlos',
     'settings.pro': 'Pro',
     'settings.perMonth': '/Monat',
-    'settings.feature1': '5 Rechnungen pro Monat',
-    'settings.feature2': '10 Ausgaben-Uploads',
-    'settings.feature3': 'Basis PDF-Export',
-    'settings.feature4': 'Email Support',
-    'settings.feature5': 'Unbegrenzte Rechnungen',
-    'settings.feature6': 'Unbegrenzte Ausgaben',
-    'settings.feature7': 'Erweiterte PDF-Vorlagen',
-    'settings.feature8': 'Automatische Backups',
-    'settings.feature9': 'Prioritäts-Support',
-    'settings.feature10': 'Steuer-Export für Steuerberater',
+    'settings.starterFeature1': '5 Rechnungen pro Monat',
+    'settings.starterFeature2': '5 Ausgaben-Uploads',
+    'settings.starterFeature3': 'E-Mail-Support',
+    'settings.starterFeature4': 'Manueller PDF-Download',
+    'settings.proFeature1': 'Unbegrenzte Rechnungen',
+    'settings.proFeature2': 'Unbegrenzte Ausgaben',
+    'settings.proFeature3': 'Erweiterte PDF-Vorlagen',
+    'settings.proFeature4': 'Prioritäts-Support',
+    'settings.eliteFeature1': 'Alles aus Pro inklusive',
+    'settings.eliteFeature2': 'Automatische Backups',
+    'settings.eliteFeature3': 'Steuerexport für Steuerberater',
+    'settings.eliteFeature4': 'Dedizierter Erfolgsmanager',
     
     // Common
     'common.save': 'Speichern',
@@ -188,6 +207,18 @@ const translations = {
     'invoice.creating': 'Creating PDF...',
     'invoice.created': 'Invoice created!',
     'invoice.createdDesc': 'The invoice was successfully generated as PDF.',
+    'invoice.uploadInvoice': 'Upload invoice for OCR',
+    'invoice.analyzing': 'Analyzing...',
+    'invoice.analysisComplete': 'Invoice analyzed',
+    'invoice.analysisCompleteDesc': 'Invoice details were pre-filled. Please review before saving.',
+    'invoice.analysisSummary': 'Detected line items',
+    'invoice.itemPlaceholder': 'Item',
+    'invoice.additionalItems': 'Additional items detected.',
+    'invoice.uploadHelper': 'Let our OCR fill in your invoice details automatically.',
+    'invoice.orEnterManually': 'Or enter the details manually below.',
+    'invoice.pdfLockedTitle': 'PDF export unavailable',
+    'invoice.pdfLockedDesc': 'Upgrade to Pro or Elite to generate invoices as PDF.',
+    'invoice.upgradeCta': 'Upgrade now',
     
     // Expenses
     'expenses.title': 'Expenses',
@@ -208,6 +239,9 @@ const translations = {
     'expenses.addNew': 'Add new expense',
     'expenses.noExpenses': 'No expenses yet',
     'expenses.uploadFirst': 'Upload your first receipt to get started.',
+    'expenses.deleteConfirmTitle': 'Delete expense?',
+    'expenses.deleteConfirmMessage': 'Are you sure you want to delete this expense? This action cannot be undone.',
+    'expenses.deletedDesc': 'The expense has been removed.',
     
     // Settings
     'settings.title': 'Settings',
@@ -218,20 +252,24 @@ const translations = {
     'settings.subscription': 'Subscription',
     'settings.currentPlan': 'Current Plan',
     'settings.upgrade': 'Upgrade',
+    'settings.starter': 'Starter',
+    'settings.elite': 'Elite',
     'settings.contact': 'Have questions? Contact us at',
     'settings.free': 'Free',
     'settings.pro': 'Pro',
     'settings.perMonth': '/month',
-    'settings.feature1': '5 invoices per month',
-    'settings.feature2': '10 expense uploads',
-    'settings.feature3': 'Basic PDF export',
-    'settings.feature4': 'Email support',
-    'settings.feature5': 'Unlimited invoices',
-    'settings.feature6': 'Unlimited expenses',
-    'settings.feature7': 'Advanced PDF templates',
-    'settings.feature8': 'Automatic backups',
-    'settings.feature9': 'Priority support',
-    'settings.feature10': 'Tax export for accountants',
+    'settings.starterFeature1': '5 invoices per month',
+    'settings.starterFeature2': '5 expense uploads',
+    'settings.starterFeature3': 'Email support',
+    'settings.starterFeature4': 'Manual PDF download',
+    'settings.proFeature1': 'Unlimited invoices',
+    'settings.proFeature2': 'Unlimited expenses',
+    'settings.proFeature3': 'Advanced PDF templates',
+    'settings.proFeature4': 'Priority support',
+    'settings.eliteFeature1': 'Everything in Pro included',
+    'settings.eliteFeature2': 'Automatic backups',
+    'settings.eliteFeature3': 'Tax export for accountants',
+    'settings.eliteFeature4': 'Dedicated success manager',
     
     // Common
     'common.save': 'Save',
@@ -296,7 +334,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   }, [language]);
 
   const t = (key: string): string => {
-    return translations[language]?.[key] || key;
+    return translations[language]?.[key] ?? translations.en[key] ?? key;
   };
 
   return (

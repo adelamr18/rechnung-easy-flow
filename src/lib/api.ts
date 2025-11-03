@@ -43,11 +43,20 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      const error: ApiError = await response.json().catch(() => ({ error: 'Unknown error' }));
+      if (response.status === 204 || response.status === 205) {
+        return undefined as T;
+      }
+      const text = await response.text();
+      const error: ApiError = text ? JSON.parse(text) : { error: 'Unknown error' };
       throw new Error(error.error || `HTTP ${response.status}`);
     }
 
-    return response.json();
+    if (response.status === 204 || response.status === 205) {
+      return undefined as T;
+    }
+
+    const raw = await response.text();
+    return raw ? JSON.parse(raw) : ({} as T);
   }
 
   // Auth
@@ -78,6 +87,31 @@ class ApiClient {
   }
 
   // Invoices
+  async analyzeInvoice(file: File) {
+    const token = this.getAccessToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const formData = new FormData();
+    formData.append('invoice', file);
+
+    const response = await fetch(`${API_BASE_URL}/api/invoices/analyze`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      const error: ApiError = text ? JSON.parse(text) : { error: 'Unknown error' };
+      throw new Error(error.error || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  }
+
   async createInvoice(data: {
     customerName: string;
     serviceDescription: string;
@@ -161,6 +195,49 @@ class ApiClient {
     return `${API_BASE_URL}/api/expenses/${id}/receipt`;
   }
 
+  async fetchExpenseReceipt(id: string): Promise<Blob> {
+    const token = this.getAccessToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(this.getExpenseReceiptUrl(id), {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to load receipt (${response.status})`);
+    }
+
+    return response.blob();
+  }
+
+  async analyzeReceipt(file: File) {
+    const token = this.getAccessToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/api/receipts/upload`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error: ApiError = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(error.error || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  }
+
   // Summary
   async getMonthlySummary(year?: number, month?: number) {
     const params = new URLSearchParams();
@@ -185,10 +262,22 @@ class ApiClient {
     });
   }
 
+  async createEliteCheckout() {
+    return this.request<{ url: string; sessionId: string }>('/api/payments/checkout/elite', {
+      method: 'POST',
+    });
+  }
+
   async getBillingPortal() {
     return this.request<{ url: string }>('/api/payments/portal');
+  }
+
+  async confirmCheckoutSession(sessionId: string) {
+    return this.request<{ plan: string }>('/api/payments/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ sessionId }),
+    });
   }
 }
 
 export const apiClient = new ApiClient();
-
