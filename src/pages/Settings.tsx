@@ -28,7 +28,6 @@ const Settings: React.FC = () => {
   const [currentPlan, setCurrentPlan] = useState(() => normalizePlan(user?.plan));
 
   useEffect(() => {
-    // Check URL params for Stripe success
     const params = new URLSearchParams(window.location.search);
     const success = params.get('success') === 'true';
     const canceled = params.get('canceled') === 'true';

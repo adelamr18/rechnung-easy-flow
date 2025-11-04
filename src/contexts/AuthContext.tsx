@@ -47,13 +47,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(response.user);
       localStorage.setItem('user', JSON.stringify(response.user));
     } catch (error) {
-      // Refresh failed, clear auth
       logout();
     }
   };
 
   useEffect(() => {
-    // Try to refresh token on mount
     if (user && localStorage.getItem('refreshToken')) {
       refreshAuth();
     }
@@ -61,11 +59,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (!user) return;
-    const interval = setInterval(() => {
+  const interval = setInterval(() => {
       refreshAuth().catch(() => {
-        // handled in refreshAuth (logout on failure)
       });
-    }, 10 * 60 * 1000); // every 10 minutes
+    }, 10 * 60 * 1000); 
 
     return () => clearInterval(interval);
   }, [user]);

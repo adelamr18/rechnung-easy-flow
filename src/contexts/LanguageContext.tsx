@@ -12,14 +12,12 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const translations = {
   de: {
-    // Navigation
     'nav.dashboard': 'Dashboard',
     'nav.invoices': 'Rechnungen',
     'nav.expenses': 'Ausgaben',
     'nav.settings': 'Einstellungen',
     'nav.logout': 'Abmelden',
     
-    // Auth
     'auth.login': 'Anmelden',
     'auth.register': 'Registrieren',
     'auth.email': 'E-Mail',
@@ -44,7 +42,6 @@ const translations = {
     'auth.passwordsMismatch': 'Passwörter stimmen nicht überein',
     'auth.checkPassword': 'Bitte überprüfen Sie Ihre Passwort-Eingabe.',
     
-    // Dashboard
     'dashboard.title': 'Dashboard',
     'dashboard.income': 'Einnahmen',
     'dashboard.expenses': 'Ausgaben', 
@@ -56,7 +53,6 @@ const translations = {
     'dashboard.newInvoiceDesc': 'Neue Rechnung erstellen',
     'dashboard.newExpenseDesc': 'Ausgabe hinzufügen',
     
-    // Invoice
     'invoice.create': 'Rechnung erstellen',
     'invoice.customer': 'Kunde',
     'invoice.service': 'Leistung',
@@ -82,7 +78,6 @@ const translations = {
     'invoice.pdfLockedDesc': 'Upgrade auf den Pro- oder Elite-Tarif, um Rechnungen als PDF zu generieren.',
     'invoice.upgradeCta': 'Jetzt upgraden',
     
-    // Expenses
     'expenses.title': 'Ausgaben',
     'expenses.upload': '📸 Foto vom Beleg machen',
     'expenses.uploadFile': 'Datei hochladen',
@@ -105,7 +100,6 @@ const translations = {
     'expenses.deleteConfirmMessage': 'Möchten Sie diese Ausgabe wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.',
     'expenses.deletedDesc': 'Die Ausgabe wurde entfernt.',
     
-    // Settings
     'settings.title': 'Einstellungen',
     'settings.subtitle': 'Verwalten Sie Ihr Konto und Abonnement',
     'settings.accountInfo': 'Kontoinformationen',
@@ -133,31 +127,26 @@ const translations = {
     'settings.eliteFeature3': 'Steuerexport für Steuerberater',
     'settings.eliteFeature4': 'Dedizierter Erfolgsmanager',
     
-    // Common
     'common.save': 'Speichern',
     'common.cancel': 'Abbrechen',
     'common.delete': 'Löschen',
     'common.edit': 'Bearbeiten',
     'common.euro': '€',
     
-    // Toast
     'toast.success': 'Erfolgreich',
     'toast.error': 'Fehler',
     
-    // Actions
     'actions.delete': 'Löschen',
     'actions.save': 'Speichern',
     'actions.cancel': 'Abbrechen',
   },
   en: {
-    // Navigation
     'nav.dashboard': 'Dashboard',
     'nav.invoices': 'Invoices',
     'nav.expenses': 'Expenses',
     'nav.settings': 'Settings',
     'nav.logout': 'Logout',
     
-    // Auth
     'auth.login': 'Login',
     'auth.register': 'Register',
     'auth.email': 'Email',
@@ -182,7 +171,6 @@ const translations = {
     'auth.passwordsMismatch': 'Passwords do not match',
     'auth.checkPassword': 'Please check your password input.',
     
-    // Dashboard
     'dashboard.title': 'Dashboard',
     'dashboard.income': 'Income',
     'dashboard.expenses': 'Expenses',
@@ -194,7 +182,6 @@ const translations = {
     'dashboard.newInvoiceDesc': 'Create new invoice',
     'dashboard.newExpenseDesc': 'Add expense',
     
-    // Invoice
     'invoice.create': 'Create Invoice',
     'invoice.customer': 'Customer',
     'invoice.service': 'Service',
@@ -220,7 +207,6 @@ const translations = {
     'invoice.pdfLockedDesc': 'Upgrade to Pro or Elite to generate invoices as PDF.',
     'invoice.upgradeCta': 'Upgrade now',
     
-    // Expenses
     'expenses.title': 'Expenses',
     'expenses.upload': '📸 Take Receipt Photo',
     'expenses.uploadFile': 'Upload File',
@@ -243,7 +229,6 @@ const translations = {
     'expenses.deleteConfirmMessage': 'Are you sure you want to delete this expense? This action cannot be undone.',
     'expenses.deletedDesc': 'The expense has been removed.',
     
-    // Settings
     'settings.title': 'Settings',
     'settings.subtitle': 'Manage your account and subscription',
     'settings.accountInfo': 'Account Information',
@@ -271,23 +256,19 @@ const translations = {
     'settings.eliteFeature3': 'Tax export for accountants',
     'settings.eliteFeature4': 'Dedicated success manager',
     
-    // Common
     'common.save': 'Save',
     'common.cancel': 'Cancel',
     'common.delete': 'Delete',
     'common.edit': 'Edit',
     'common.euro': '€',
     
-    // Toast
     'toast.success': 'Success',
     'toast.error': 'Error',
     
-    // Actions
     'actions.delete': 'Delete',
     'actions.save': 'Save',
     'actions.cancel': 'Cancel',
   },
-  // Add more languages with similar structure
   pl: {
     'nav.dashboard': 'Panel główny', 'nav.invoices': 'Faktury', 'nav.expenses': 'Wydatki', 'nav.settings': 'Ustawienia', 'nav.logout': 'Wyloguj', 
     'auth.login': 'Zaloguj', 'auth.register': 'Zarejestruj', 'auth.email': 'Email', 'auth.password': 'Hasło', 'auth.confirmPassword': 'Potwierdź hasło', 'auth.companyName': 'Nazwa firmy', 'auth.noAccount': 'Nie masz konta?', 'auth.hasAccount': 'Masz już konto?', 'auth.welcome': 'Witaj ponownie', 'auth.createAccount': 'Utwórz konto', 'auth.signInSubtitle': 'Zaloguj się do swojego konta', 'auth.startToday': 'Rozpocznij dziś', 'auth.loginSuccess': 'Logowanie udane', 'auth.loginFailed': 'Logowanie nie powiodło się', 'auth.registerSuccess': 'Rejestracja udana', 'auth.registerFailed': 'Rejestracja nie powiodła się', 'auth.welcomeMessage': 'Witaj w InvoiceEasy!', 'auth.welcomeBack': 'Witaj ponownie!', 'auth.checkInputs': 'Sprawdź wprowadzone dane.', 'auth.error': 'Błąd', 'auth.errorOccurred': 'Wystąpił błąd.', 'auth.passwordsMismatch': 'Hasła nie pasują', 'auth.checkPassword': 'Sprawdź wprowadzone hasło.',
@@ -298,7 +279,6 @@ const translations = {
     'common.save': 'Zapisz', 'common.cancel': 'Anuluj', 'common.delete': 'Usuń', 'common.edit': 'Edytuj', 'common.euro': '€',
     'toast.success': 'Sukces', 'toast.error': 'Błąd', 'actions.delete': 'Usuń', 'actions.save': 'Zapisz', 'actions.cancel': 'Anuluj',
   },
-  // Simplified versions for other languages  
   ru: { 'nav.dashboard': 'Панель', 'nav.invoices': 'Счета', 'nav.expenses': 'Расходы', 'nav.settings': 'Настройки', 'nav.logout': 'Выйти', 'auth.login': 'Войти', 'auth.register': 'Регистрация', 'auth.email': 'Email', 'auth.password': 'Пароль', 'auth.confirmPassword': 'Подтвердить пароль', 'auth.companyName': 'Название компании', 'auth.noAccount': 'Нет аккаунта?', 'auth.hasAccount': 'Есть аккаунт?', 'auth.welcome': 'Добро пожаловать', 'auth.createAccount': 'Создать аккаунт', 'auth.signInSubtitle': 'Войдите в свой аккаунт', 'auth.startToday': 'Начать сегодня', 'auth.loginSuccess': 'Вход выполнен', 'auth.loginFailed': 'Вход не выполнен', 'auth.registerSuccess': 'Регистрация успешна', 'auth.registerFailed': 'Регистрация не удалась', 'auth.welcomeMessage': 'Добро пожаловать в InvoiceEasy!', 'auth.welcomeBack': 'С возвращением!', 'auth.checkInputs': 'Проверьте введенные данные.', 'auth.error': 'Ошибка', 'auth.errorOccurred': 'Произошла ошибка.', 'auth.passwordsMismatch': 'Пароли не совпадают', 'auth.checkPassword': 'Проверьте введенный пароль.', 'dashboard.title': 'Панель', 'dashboard.income': 'Доходы', 'dashboard.expenses': 'Расходы', 'dashboard.profit': 'Прибыль', 'dashboard.thisMonth': 'В этом месяце', 'dashboard.welcome': 'Добро пожаловать', 'dashboard.quickActions': 'Быстрые действия', 'dashboard.monthlyOverview': 'Обзор за месяц', 'dashboard.newInvoiceDesc': 'Создать новый счет', 'dashboard.newExpenseDesc': 'Добавить расход', 'invoice.create': 'Создать счет', 'invoice.customer': 'Клиент', 'invoice.service': 'Услуга', 'invoice.amount': 'Сумма', 'invoice.date': 'Дата', 'invoice.generate': 'Создать PDF', 'invoice.subtitle': 'Новый счет для клиентов', 'invoice.legalNotice': 'Правовое уведомление:', 'invoice.legalText': 'Счет будет автоматически помечен текстом согласно § 19 UStG.', 'invoice.creating': 'Создание PDF...', 'invoice.created': 'Счет создан!', 'invoice.createdDesc': 'Счет успешно создан как PDF.', 'expenses.title': 'Расходы', 'expenses.upload': '📸 Сфотографировать чек', 'expenses.uploadFile': 'Загрузить файл', 'expenses.amount': 'Сумма (опционально)', 'expenses.note': 'Заметка (опционально)', 'expenses.save': 'Сохранить', 'expenses.subtitle': 'Загрузите свои чеки', 'expenses.loadedSuccess': 'Чек успешно загружен', 'expenses.saving': 'Сохранение...', 'expenses.saved': 'Расход сохранен!', 'expenses.savedDesc': 'Чек успешно загружен.', 'expenses.noReceiptSelected': 'Чек не выбран', 'expenses.pleaseUpload': 'Загрузите чек или сделайте фото.', 'expenses.list': 'Ваши загруженные чеки', 'expenses.totalMonth': 'Всего в этом месяце', 'expenses.addNew': 'Добавить новый расход', 'expenses.noExpenses': 'Нет расходов', 'expenses.uploadFirst': 'Загрузите первый чек, чтобы начать.', 'settings.title': 'Настройки', 'settings.subtitle': 'Управление аккаунтом и подпиской', 'settings.accountInfo': 'Информация об аккаунте', 'settings.language': 'Язык', 'settings.languageLabel': 'Язык интерфейса:', 'settings.subscription': 'Подписка', 'settings.currentPlan': 'Текущий план', 'settings.upgrade': 'Обновить', 'settings.contact': 'Есть вопросы? Свяжитесь с нами по адресу', 'settings.free': 'Бесплатный', 'settings.pro': 'Pro', 'settings.perMonth': '/месяц', 'settings.feature1': '5 счетов в месяц', 'settings.feature2': '10 загрузок расходов', 'settings.feature3': 'Базовый экспорт PDF', 'settings.feature4': 'Email поддержка', 'settings.feature5': 'Неограниченные счета', 'settings.feature6': 'Неограниченные расходы', 'settings.feature7': 'Расширенные шаблоны PDF', 'settings.feature8': 'Автоматические резервные копии', 'settings.feature9': 'Приоритетная поддержка', 'settings.feature10': 'Налоговый экспорт для бухгалтеров', 'common.save': 'Сохранить', 'common.cancel': 'Отмена', 'common.delete': 'Удалить', 'common.edit': 'Редактировать', 'common.euro': '€', 'toast.success': 'Успешно', 'toast.error': 'Ошибка', 'actions.delete': 'Удалить', 'actions.save': 'Сохранить', 'actions.cancel': 'Отмена' },
   es: { 'nav.dashboard': 'Panel', 'nav.invoices': 'Facturas', 'nav.expenses': 'Gastos', 'nav.settings': 'Ajustes', 'nav.logout': 'Cerrar sesión', 'auth.login': 'Iniciar sesión', 'auth.register': 'Registrarse', 'auth.email': 'Email', 'auth.password': 'Contraseña', 'auth.confirmPassword': 'Confirmar contraseña', 'auth.companyName': 'Nombre de empresa', 'auth.noAccount': '¿No tienes cuenta?', 'auth.hasAccount': '¿Ya tienes cuenta?', 'auth.welcome': 'Bienvenido', 'auth.createAccount': 'Crear cuenta', 'auth.signInSubtitle': 'Inicia sesión en tu cuenta', 'auth.startToday': 'Comienza hoy', 'auth.loginSuccess': 'Inicio de sesión exitoso', 'auth.loginFailed': 'Inicio de sesión fallido', 'auth.registerSuccess': 'Registro exitoso', 'auth.registerFailed': 'Registro fallido', 'auth.welcomeMessage': '¡Bienvenido a InvoiceEasy!', 'auth.welcomeBack': '¡Bienvenido de nuevo!', 'auth.checkInputs': 'Por favor verifica tus datos.', 'auth.error': 'Error', 'auth.errorOccurred': 'Ha ocurrido un error.', 'auth.passwordsMismatch': 'Las contraseñas no coinciden', 'auth.checkPassword': 'Por favor verifica tu contraseña.', 'dashboard.title': 'Panel', 'dashboard.income': 'Ingresos', 'dashboard.expenses': 'Gastos', 'dashboard.profit': 'Beneficio', 'dashboard.thisMonth': 'Este mes', 'dashboard.welcome': 'Bienvenido', 'dashboard.quickActions': 'Acciones rápidas', 'dashboard.monthlyOverview': 'Resumen mensual', 'dashboard.newInvoiceDesc': 'Crear nueva factura', 'dashboard.newExpenseDesc': 'Añadir gasto', 'invoice.create': 'Crear factura', 'invoice.customer': 'Cliente', 'invoice.service': 'Servicio', 'invoice.amount': 'Cantidad', 'invoice.date': 'Fecha', 'invoice.generate': 'Generar PDF', 'invoice.subtitle': 'Nueva factura para clientes', 'invoice.legalNotice': 'Aviso legal:', 'invoice.legalText': 'La factura se marcará automáticamente según § 19 UStG.', 'invoice.creating': 'Creando PDF...', 'invoice.created': '¡Factura creada!', 'invoice.createdDesc': 'La factura se generó exitosamente como PDF.', 'expenses.title': 'Gastos', 'expenses.upload': '📸 Foto del recibo', 'expenses.uploadFile': 'Subir archivo', 'expenses.amount': 'Cantidad (opcional)', 'expenses.note': 'Nota (opcional)', 'expenses.save': 'Guardar', 'expenses.subtitle': 'Sube tus recibos', 'expenses.loadedSuccess': 'Recibo cargado exitosamente', 'expenses.saving': 'Guardando...', 'expenses.saved': '¡Gasto guardado!', 'expenses.savedDesc': 'El recibo se subió exitosamente.', 'expenses.noReceiptSelected': 'No se seleccionó recibo', 'expenses.pleaseUpload': 'Sube un recibo o toma una foto.', 'expenses.list': 'Tus recibos subidos', 'expenses.totalMonth': 'Total este mes', 'expenses.addNew': 'Añadir nuevo gasto', 'expenses.noExpenses': 'Sin gastos aún', 'expenses.uploadFirst': 'Sube tu primer recibo para comenzar.', 'settings.title': 'Ajustes', 'settings.subtitle': 'Administra tu cuenta y suscripción', 'settings.accountInfo': 'Información de cuenta', 'settings.language': 'Idioma', 'settings.languageLabel': 'Idioma de interfaz:', 'settings.subscription': 'Suscripción', 'settings.currentPlan': 'Plan actual', 'settings.upgrade': 'Mejorar', 'settings.contact': '¿Tienes preguntas? Contáctanos en', 'settings.free': 'Gratis', 'settings.pro': 'Pro', 'settings.perMonth': '/mes', 'settings.feature1': '5 facturas por mes', 'settings.feature2': '10 subidas de gastos', 'settings.feature3': 'Exportación PDF básica', 'settings.feature4': 'Soporte por email', 'settings.feature5': 'Facturas ilimitadas', 'settings.feature6': 'Gastos ilimitados', 'settings.feature7': 'Plantillas PDF avanzadas', 'settings.feature8': 'Copias de seguridad automáticas', 'settings.feature9': 'Soporte prioritario', 'settings.feature10': 'Exportación fiscal para contadores', 'common.save': 'Guardar', 'common.cancel': 'Cancelar', 'common.delete': 'Eliminar', 'common.edit': 'Editar', 'common.euro': '€', 'toast.success': 'Éxito', 'toast.error': 'Error', 'actions.delete': 'Eliminar', 'actions.save': 'Guardar', 'actions.cancel': 'Cancelar' },
   tr: { 'nav.dashboard': 'Panel', 'nav.invoices': 'Faturalar', 'nav.expenses': 'Giderler', 'nav.settings': 'Ayarlar', 'nav.logout': 'Çıkış', 'auth.login': 'Giriş', 'auth.register': 'Kayıt', 'auth.email': 'Email', 'auth.password': 'Şifre', 'auth.confirmPassword': 'Şifreyi onayla', 'auth.companyName': 'Şirket adı', 'auth.noAccount': 'Hesabınız yok mu?', 'auth.hasAccount': 'Zaten hesabınız var mı?', 'auth.welcome': 'Hoş geldiniz', 'auth.createAccount': 'Hesap oluştur', 'auth.signInSubtitle': 'Hesabınıza giriş yapın', 'auth.startToday': 'Bugün başlayın', 'auth.loginSuccess': 'Giriş başarılı', 'auth.loginFailed': 'Giriş başarısız', 'auth.registerSuccess': 'Kayıt başarılı', 'auth.registerFailed': 'Kayıt başarısız', 'auth.welcomeMessage': 'InvoiceEasy\'e hoş geldiniz!', 'auth.welcomeBack': 'Tekrar hoş geldiniz!', 'auth.checkInputs': 'Lütfen girişlerinizi kontrol edin.', 'auth.error': 'Hata', 'auth.errorOccurred': 'Bir hata oluştu.', 'auth.passwordsMismatch': 'Şifreler eşleşmiyor', 'auth.checkPassword': 'Lütfen şifrenizi kontrol edin.', 'dashboard.title': 'Panel', 'dashboard.income': 'Gelir', 'dashboard.expenses': 'Giderler', 'dashboard.profit': 'Kar', 'dashboard.thisMonth': 'Bu ay', 'dashboard.welcome': 'Hoş geldiniz', 'dashboard.quickActions': 'Hızlı işlemler', 'dashboard.monthlyOverview': 'Aylık genel bakış', 'dashboard.newInvoiceDesc': 'Yeni fatura oluştur', 'dashboard.newExpenseDesc': 'Gider ekle', 'invoice.create': 'Fatura oluştur', 'invoice.customer': 'Müşteri', 'invoice.service': 'Hizmet', 'invoice.amount': 'Tutar', 'invoice.date': 'Tarih', 'invoice.generate': 'PDF oluştur', 'invoice.subtitle': 'Müşterileriniz için yeni fatura', 'invoice.legalNotice': 'Yasal bildirim:', 'invoice.legalText': 'Fatura otomatik olarak § 19 UStG\'ye göre işaretlenecektir.', 'invoice.creating': 'PDF oluşturuluyor...', 'invoice.created': 'Fatura oluşturuldu!', 'invoice.createdDesc': 'Fatura PDF olarak başarıyla oluşturuldu.', 'expenses.title': 'Giderler', 'expenses.upload': '📸 Fiş fotoğrafı çek', 'expenses.uploadFile': 'Dosya yükle', 'expenses.amount': 'Tutar (opsiyonel)', 'expenses.note': 'Not (opsiyonel)', 'expenses.save': 'Kaydet', 'expenses.subtitle': 'Fişlerinizi yükleyin', 'expenses.loadedSuccess': 'Fiş başarıyla yüklendi', 'expenses.saving': 'Kaydediliyor...', 'expenses.saved': 'Gider kaydedildi!', 'expenses.savedDesc': 'Fiş başarıyla yüklendi.', 'expenses.noReceiptSelected': 'Fiş seçilmedi', 'expenses.pleaseUpload': 'Bir fiş yükleyin veya fotoğraf çekin.', 'expenses.list': 'Yüklenen fişleriniz', 'expenses.totalMonth': 'Bu ay toplam', 'expenses.addNew': 'Yeni gider ekle', 'expenses.noExpenses': 'Henüz gider yok', 'expenses.uploadFirst': 'Başlamak için ilk fişinizi yükleyin.', 'settings.title': 'Ayarlar', 'settings.subtitle': 'Hesabınızı ve aboneliğinizi yönetin', 'settings.accountInfo': 'Hesap bilgileri', 'settings.language': 'Dil', 'settings.languageLabel': 'Arayüz dili:', 'settings.subscription': 'Abonelik', 'settings.currentPlan': 'Mevcut plan', 'settings.upgrade': 'Yükselt', 'settings.contact': 'Sorularınız mı var? Bize ulaşın:', 'settings.free': 'Ücretsiz', 'settings.pro': 'Pro', 'settings.perMonth': '/ay', 'settings.feature1': 'Ayda 5 fatura', 'settings.feature2': '10 gider yüklemesi', 'settings.feature3': 'Temel PDF dışa aktarma', 'settings.feature4': 'Email desteği', 'settings.feature5': 'Sınırsız fatura', 'settings.feature6': 'Sınırsız gider', 'settings.feature7': 'Gelişmiş PDF şablonları', 'settings.feature8': 'Otomatik yedeklemeler', 'settings.feature9': 'Öncelikli destek', 'settings.feature10': 'Muhasebeciler için vergi dışa aktarma', 'common.save': 'Kaydet', 'common.cancel': 'İptal', 'common.delete': 'Sil', 'common.edit': 'Düzenle', 'common.euro': '€', 'toast.success': 'Başarılı', 'toast.error': 'Hata', 'actions.delete': 'Sil', 'actions.save': 'Kaydet', 'actions.cancel': 'İptal' },
@@ -314,7 +294,6 @@ interface LanguageProviderProps {
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [language, setLanguage] = useState<Language>(() => {
-    // Load from localStorage or default to German
     const saved = localStorage.getItem('invoice-language');
     return (saved as Language) || 'de';
   });
@@ -322,12 +301,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   const handleSetLanguage = (lang: Language) => {
     setLanguage(lang);
     localStorage.setItem('invoice-language', lang);
-    // Update document direction for RTL languages
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
   };
 
-  // Set initial direction
   React.useEffect(() => {
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = language;

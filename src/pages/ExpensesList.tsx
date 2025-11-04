@@ -25,7 +25,6 @@ const ExpensesList: React.FC = () => {
 
   useEffect(() => {
     loadExpenses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

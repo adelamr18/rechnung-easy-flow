@@ -125,13 +125,11 @@ const UploadExpense: React.FC = () => {
         description: t('expenses.savedDesc'),
       });
 
-      // Reset form
       setSelectedFile(null);
       setPreviewUrl('');
       setAmount('');
       setNote('');
       
-      // Navigate to expenses list
       setTimeout(() => navigate('/expenses'), 1000);
     } catch (error: any) {
       toast({

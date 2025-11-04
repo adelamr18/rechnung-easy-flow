@@ -59,7 +59,6 @@ class ApiClient {
     return raw ? JSON.parse(raw) : ({} as T);
   }
 
-  // Auth
   async register(email: string, password: string, companyName?: string) {
     return this.request<{ accessToken: string; refreshToken: string; user: any }>('/api/auth/register', {
       method: 'POST',
@@ -86,7 +85,6 @@ class ApiClient {
     this.setAccessToken(null);
   }
 
-  // Invoices
   async analyzeInvoice(file: File) {
     const token = this.getAccessToken();
     const headers: HeadersInit = {};
@@ -154,7 +152,6 @@ class ApiClient {
     return `${API_BASE_URL}/api/invoices/${id}/pdf`;
   }
 
-  // Expenses
   async createExpense(formData: FormData) {
     const token = this.getAccessToken();
     const headers: HeadersInit = {};
@@ -238,7 +235,6 @@ class ApiClient {
     return response.json();
   }
 
-  // Summary
   async getMonthlySummary(year?: number, month?: number) {
     const params = new URLSearchParams();
     if (year) params.append('year', year.toString());
@@ -255,7 +251,6 @@ class ApiClient {
     }>(`/api/summary/monthly?${params.toString()}`);
   }
 
-  // Payments
   async createCheckout() {
     return this.request<{ url: string; sessionId: string }>('/api/payments/checkout', {
       method: 'POST',

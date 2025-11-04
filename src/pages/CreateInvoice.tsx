@@ -36,7 +36,6 @@ const CreateInvoice: React.FC = () => {
     setLoading(true);
 
     try {
-      const invoiceDate = date.split('T')[0]; // Convert to YYYY-MM-DD
       const result = await apiClient.createInvoice({
         customerName,
         serviceDescription,
@@ -49,12 +48,10 @@ const CreateInvoice: React.FC = () => {
         description: t('invoice.createdDesc'),
       });
 
-      // Download PDF
       if (result.downloadUrl) {
         window.open(result.downloadUrl, '_blank');
       }
 
-      // Reset form
       setCustomerName('');
       setServiceDescription('');
       setAmount('');

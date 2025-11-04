@@ -28,7 +28,6 @@ const Dashboard: React.FC = () => {
       setExpenses(summary.expenses);
       setProfit(summary.profit);
       
-      // Transform chart data
       const transformed = summary.chart.map(point => ({
         month: point.label.split(' ')[0],
         income: point.income,
