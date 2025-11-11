@@ -14,6 +14,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
 import CreateInvoice from "@/pages/CreateInvoice";
+import InvoicesList from "@/pages/InvoicesList";
 import UploadExpense from "@/pages/UploadExpense";
 import ExpensesList from "@/pages/ExpensesList";
 import Settings from "@/pages/Settings";
@@ -81,7 +82,7 @@ const AppRoutes = () => (
       path="/invoices" 
       element={
         <ProtectedRoute>
-          <CreateInvoice />
+          <InvoicesList />
         </ProtectedRoute>
       } 
     />

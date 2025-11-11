@@ -1,10 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, FileText, Euro, Calendar, Download, Upload, Loader2, ShieldAlert } from 'lucide-react';
+import { User, FileText, Euro, Calendar, Save, Upload, Loader2, ShieldAlert, Download } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiClient } from '@/lib/api';
+import { downloadBlob } from '@/lib/download';
 
 const CreateInvoice: React.FC = () => {
   const [customerName, setCustomerName] = useState('');
@@ -14,20 +15,87 @@ const CreateInvoice: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisItems, setAnalysisItems] = useState<Array<{ description?: string | null; total?: number | null }>>([]);
+  const [readyToSave, setReadyToSave] = useState(false);
+  const [lastInvoiceId, setLastInvoiceId] = useState<string | null>(null);
+  const [generatedPdfUrl, setGeneratedPdfUrl] = useState<string | null>(null);
+  const [pendingTemplate, setPendingTemplate] = useState<'basic' | 'advanced' | 'elite' | null>(null);
+  const [lastTemplate, setLastTemplate] = useState<'basic' | 'advanced' | 'elite' | null>(null);
+  const [downloadingLatest, setDownloadingLatest] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { t } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
   const normalizedPlan = (user?.plan ?? 'starter').toLowerCase();
-  const canGeneratePdf = normalizedPlan === 'pro' || normalizedPlan === 'elite';
+  const isPremiumPlan = normalizedPlan === 'pro' || normalizedPlan === 'elite';
+  const isFormValid = serviceDescription.trim().length > 0 && amount.trim().length > 0;
+  const pdfDescriptionKey = React.useMemo(() => {
+    if (normalizedPlan === 'elite') return 'invoice.pdfSectionSubtitleElite';
+    if (normalizedPlan === 'pro') return 'invoice.pdfSectionSubtitlePro';
+    return 'invoice.pdfSectionSubtitleStarter';
+  }, [normalizedPlan]);
+
+  const templateLabelMap = React.useMemo(
+    () => ({
+      basic: t('invoice.templateBasic'),
+      advanced: t('invoice.templateAdvanced'),
+      elite: t('invoice.templateElite'),
+    }),
+    [t]
+  );
+
+  const resetPdfState = React.useCallback(() => {
+    setLastInvoiceId(null);
+    setGeneratedPdfUrl(null);
+    setLastTemplate(null);
+  }, []);
+
+  const triggerPdfDownload = React.useCallback(
+    async (invoiceId: string, showSpinner = false) => {
+      if (!invoiceId) return;
+      if (showSpinner) {
+        setDownloadingLatest(true);
+      }
+      try {
+        const blob = await apiClient.downloadInvoicePdf(invoiceId);
+        downloadBlob(blob, `invoice_${invoiceId}.pdf`);
+      } catch (error: any) {
+        toast({
+          title: t('auth.error'),
+          description: error.message || t('auth.errorOccurred'),
+          variant: 'destructive',
+        });
+      } finally {
+        if (showSpinner) {
+          setDownloadingLatest(false);
+        }
+      }
+    },
+    [t, toast]
+  );
+
+  const handleDownloadLatestPdf = React.useCallback(async () => {
+    if (!lastInvoiceId || !generatedPdfUrl) {
+      toast({
+        title: t('auth.error'),
+        description: t('invoice.pdfAwaitSave'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    await triggerPdfDownload(lastInvoiceId, true);
+  }, [generatedPdfUrl, lastInvoiceId, t, toast, triggerPdfDownload]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canGeneratePdf) {
+    const normalizedAmount = amount.replace(/\s/g, '').replace(',', '.');
+    const parsedAmount = Number(normalizedAmount);
+
+    if (!isFormValid || Number.isNaN(parsedAmount) || parsedAmount < 0) {
       toast({
-        title: t('invoice.pdfLockedTitle'),
-        description: t('invoice.pdfLockedDesc'),
+        title: t('auth.error'),
+        description: t('auth.errorOccurred'),
         variant: 'destructive',
       });
       return;
@@ -37,10 +105,10 @@ const CreateInvoice: React.FC = () => {
 
     try {
       const result = await apiClient.createInvoice({
-        customerName,
-        serviceDescription,
-        amount: parseFloat(amount),
-        invoiceDate,
+        customerName: customerName.trim(),
+        serviceDescription: serviceDescription.trim(),
+        amount: parsedAmount,
+        invoiceDate: date,
       });
 
       toast({
@@ -48,14 +116,28 @@ const CreateInvoice: React.FC = () => {
         description: t('invoice.createdDesc'),
       });
 
+      const invoiceId = result.id;
+      setLastInvoiceId(invoiceId);
+      const defaultTemplate: 'basic' | 'advanced' | 'elite' =
+        normalizedPlan === 'elite'
+          ? 'elite'
+          : normalizedPlan === 'pro'
+            ? 'advanced'
+            : 'basic';
+      const templateToStore = result.downloadUrl ? defaultTemplate : null;
+      setGeneratedPdfUrl(result.downloadUrl ?? null);
+      setLastTemplate(templateToStore);
       if (result.downloadUrl) {
-        window.open(result.downloadUrl, '_blank');
+        await triggerPdfDownload(invoiceId);
       }
 
       setCustomerName('');
       setServiceDescription('');
       setAmount('');
       setDate(new Date().toISOString().split('T')[0]);
+      setAnalysisItems([]);
+      setReadyToSave(false);
+      setPendingTemplate(null);
     } catch (error: any) {
       toast({
         title: t('auth.error'),
@@ -68,6 +150,9 @@ const CreateInvoice: React.FC = () => {
   };
 
   const handleAnalyze = async (file: File) => {
+    resetPdfState();
+    setReadyToSave(false);
+    setAnalysisItems([]);
     setAnalyzing(true);
     try {
       const response = await apiClient.analyzeInvoice(file);
@@ -114,6 +199,7 @@ const CreateInvoice: React.FC = () => {
         title: t('invoice.analysisComplete'),
         description: t('invoice.analysisCompleteDesc'),
       });
+      setReadyToSave(true);
     } catch (error: any) {
       toast({
         title: t('auth.error'),
@@ -138,6 +224,39 @@ const CreateInvoice: React.FC = () => {
     const file = event.target.files?.[0];
     if (file) {
       void handleAnalyze(file);
+    }
+  };
+
+  const handleGeneratePdf = async (template: 'basic' | 'advanced' | 'elite') => {
+    if (!lastInvoiceId) {
+      toast({
+        title: t('auth.error'),
+        description: t('invoice.pdfAwaitSave'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setPendingTemplate(template);
+    try {
+      const result = await apiClient.generateInvoicePdf(lastInvoiceId, template);
+      setGeneratedPdfUrl(result.downloadUrl);
+      setLastTemplate(template);
+      toast({
+        title: t('invoice.pdfReadyTitle'),
+        description: t('invoice.pdfReadyDesc'),
+      });
+      if (result.downloadUrl) {
+        await triggerPdfDownload(lastInvoiceId);
+      }
+    } catch (error: any) {
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.errorOccurred'),
+        variant: 'destructive',
+      });
+    } finally {
+      setPendingTemplate(null);
     }
   };
 
@@ -213,10 +332,15 @@ const CreateInvoice: React.FC = () => {
                 id="customer"
                 type="text"
                 value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
+                onChange={(e) => {
+                  setCustomerName(e.target.value);
+                  setReadyToSave(true);
+                  if (lastInvoiceId || generatedPdfUrl || lastTemplate) {
+                    resetPdfState();
+                  }
+                }}
                 className="input-large pl-12 w-full"
                 placeholder="Max Mustermann"
-                required
               />
             </div>
           </div>
@@ -230,9 +354,15 @@ const CreateInvoice: React.FC = () => {
               <textarea
                 id="service"
                 value={serviceDescription}
-                onChange={(e) => setServiceDescription(e.target.value)}
+                onChange={(e) => {
+                  setServiceDescription(e.target.value);
+                  setReadyToSave(true);
+                  if (lastInvoiceId || generatedPdfUrl || lastTemplate) {
+                    resetPdfState();
+                  }
+                }}
                 className="input-large pl-12 w-full min-h-[120px] resize-none"
-                placeholder="Beschreibung der erbrachten Leistung..."
+                placeholder={t('invoice.service')}
                 required
               />
             </div>
@@ -251,7 +381,13 @@ const CreateInvoice: React.FC = () => {
                   step="0.01"
                   min="0"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => {
+                    setAmount(e.target.value);
+                    setReadyToSave(true);
+                    if (lastInvoiceId || generatedPdfUrl || lastTemplate) {
+                      resetPdfState();
+                    }
+                  }}
                   className="input-large pl-12 w-full"
                   placeholder="100.00"
                   required
@@ -269,7 +405,13 @@ const CreateInvoice: React.FC = () => {
                   id="date"
                   type="date"
                   value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  onChange={(e) => {
+                    setDate(e.target.value);
+                    setReadyToSave(true);
+                    if (lastInvoiceId || generatedPdfUrl || lastTemplate) {
+                      resetPdfState();
+                    }
+                  }}
                   className="input-large pl-12 w-full"
                   required
                 />
@@ -308,23 +450,136 @@ const CreateInvoice: React.FC = () => {
 
           <button
             type="submit"
-            disabled={loading || !canGeneratePdf}
-            className={`btn-large w-full ${canGeneratePdf ? 'btn-success' : 'btn-secondary cursor-not-allowed opacity-70'}`}
+            disabled={loading || analyzing || !readyToSave || !isFormValid}
+            className={`btn-large btn-primary w-full ${loading || analyzing || !readyToSave || !isFormValid ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
             {loading ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                {t('invoice.creating')}
+                <Loader2 className="h-5 w-5 animate-spin" />
+                {t('invoice.saving')}
               </>
             ) : (
               <>
-                <Download className="h-5 w-5" />
-                {t('invoice.generate')}
+                <Save className="h-5 w-5" />
+                {t('invoice.save')}
               </>
             )}
           </button>
 
-          {!canGeneratePdf && (
+          <div className="mt-6 rounded-xl border border-border bg-muted/20 p-5 space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">{t('invoice.pdfSectionTitle')}</h3>
+              <p className="text-sm text-muted-foreground">
+                {t(pdfDescriptionKey)}
+              </p>
+            </div>
+
+            {lastInvoiceId ? (
+              <>
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => void handleGeneratePdf('basic')}
+                    disabled={pendingTemplate !== null}
+                    className={`flex-1 min-w-[180px] rounded-xl border border-primary/30 bg-background px-5 py-3 text-base font-medium transition hover:bg-primary/5 ${
+                      pendingTemplate === 'basic' ? 'opacity-70 cursor-not-allowed' : ''
+                    }`}
+                  >
+                      <div className="flex items-center justify-center gap-2">
+                        {pendingTemplate === 'basic' ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                        ) : (
+                          <Save className="h-4 w-4 text-primary" />
+                        )}
+                        <span>
+                          {pendingTemplate === 'basic' ? t('invoice.pdfGenerating') : t('invoice.generateBasic')}
+                        </span>
+                      </div>
+                  </button>
+
+                  {normalizedPlan !== 'starter' && (
+                    <button
+                      type="button"
+                      onClick={() => void handleGeneratePdf('advanced')}
+                      disabled={pendingTemplate !== null}
+                      className={`flex-1 min-w-[180px] rounded-xl border border-primary bg-primary px-5 py-3 text-base font-medium text-primary-foreground transition hover:bg-primary/90 ${
+                        pendingTemplate === 'advanced' ? 'opacity-70 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        {pendingTemplate === 'advanced' ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Save className="h-4 w-4" />
+                        )}
+                        <span>
+                          {pendingTemplate === 'advanced'
+                            ? t('invoice.pdfGenerating')
+                            : t('invoice.generateAdvanced')}
+                        </span>
+                      </div>
+                    </button>
+                  )}
+
+                  {normalizedPlan === 'elite' && (
+                    <button
+                      type="button"
+                      onClick={() => void handleGeneratePdf('elite')}
+                      disabled={pendingTemplate !== null}
+                      className={`flex-1 min-w-[180px] rounded-xl border border-[#38BDF8] bg-[#38BDF8] px-5 py-3 text-base font-medium text-slate-900 transition hover:bg-[#0EA5E9] ${
+                        pendingTemplate === 'elite' ? 'opacity-70 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        {pendingTemplate === 'elite' ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Save className="h-4 w-4" />
+                        )}
+                        <span>
+                          {pendingTemplate === 'elite'
+                            ? t('invoice.pdfGenerating')
+                            : t('invoice.generateElite')}
+                        </span>
+                      </div>
+                    </button>
+                  )}
+                </div>
+
+                {generatedPdfUrl && (
+                  <div className="flex flex-col gap-2 rounded-xl border border-border bg-background px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{t('invoice.pdfDownload')}</p>
+                      {lastTemplate && (
+                        <p className="text-xs text-muted-foreground">
+                          {t('invoice.pdfLastTemplate')}: {templateLabelMap[lastTemplate]}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void handleDownloadLatestPdf()}
+                      disabled={downloadingLatest}
+                      className={`inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition ${
+                        downloadingLatest ? 'opacity-70 cursor-not-allowed' : 'hover:bg-primary/90'
+                      }`}
+                    >
+                      {downloadingLatest ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4" />
+                      )}
+                      {downloadingLatest ? t('invoice.pdfDownloading') : t('invoice.pdfDownload')}
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">{t('invoice.pdfAwaitSave')}</p>
+            )}
+          </div>
+
+          {!isPremiumPlan && (
             <div className="mt-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
               <div className="flex items-start gap-3">
                 <ShieldAlert className="h-5 w-5 flex-shrink-0" />

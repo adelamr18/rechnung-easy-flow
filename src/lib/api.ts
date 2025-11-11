@@ -123,7 +123,7 @@ class ApiClient {
       amount: number;
       currency: string;
       invoiceDate: string;
-      downloadUrl: string;
+      downloadUrl: string | null;
       createdAt: string;
     }>('/api/invoices', {
       method: 'POST',
@@ -144,12 +144,52 @@ class ApiClient {
     }>>(`/api/invoices?page=${page}&pageSize=${pageSize}`);
   }
 
+  async generateInvoicePdf(id: string, template?: 'basic' | 'advanced' | 'elite') {
+    const payload = template ? { template } : {};
+    return this.request<{ downloadUrl: string; template: string }>(
+      `/api/invoices/${id}/generate-pdf`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }
+    );
+  }
+
   async deleteInvoice(id: string) {
     return this.request(`/api/invoices/${id}`, { method: 'DELETE' });
   }
 
   getInvoicePdfUrl(id: string): string {
     return `${API_BASE_URL}/api/invoices/${id}/pdf`;
+  }
+
+  async downloadInvoicePdf(id: string): Promise<Blob> {
+    const token = this.getAccessToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(this.getInvoicePdfUrl(id), {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      let message = `HTTP ${response.status}`;
+      try {
+        const text = await response.text();
+        if (text) {
+          const error: ApiError = JSON.parse(text);
+          message = error.error || message;
+        }
+      } catch {
+        // Ignore JSON parse errors and fall back to default message
+      }
+      throw new Error(message);
+    }
+
+    return response.blob();
   }
 
   async createExpense(formData: FormData) {
