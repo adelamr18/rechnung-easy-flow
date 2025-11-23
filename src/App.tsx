@@ -23,6 +23,7 @@ import NotFound from "./pages/NotFound";
 import Impressum from "@/pages/Impressum";
 import Datenschutz from "@/pages/Datenschutz";
 import Terms from "@/pages/Terms";
+import LandingPage from "@/pages/LandingPage";
 
 const queryClient = new QueryClient();
 
@@ -134,8 +135,8 @@ const AppRoutes = () => (
       } 
     />
 
-    {/* Redirect root to dashboard or login */}
-    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    {/* Landing page */}
+    <Route path="/" element={<LandingPage />} />
 
     {/* Legal pages */}
     <Route
