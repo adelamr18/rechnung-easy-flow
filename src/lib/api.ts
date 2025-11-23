@@ -1,5 +1,12 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
+export interface InvoiceLineItem {
+  description: string;
+  quantity?: number | null;
+  unitPrice?: number | null;
+  totalPrice?: number | null;
+}
+
 export interface ApiError {
   error: string;
 }
@@ -115,6 +122,7 @@ class ApiClient {
     serviceDescription: string;
     amount: number;
     invoiceDate: string;
+    items?: InvoiceLineItem[];
   }) {
     return this.request<{
       id: string;
@@ -124,6 +132,7 @@ class ApiClient {
       currency: string;
       invoiceDate: string;
       downloadUrl: string | null;
+      items?: InvoiceLineItem[] | null;
       createdAt: string;
     }>('/api/invoices', {
       method: 'POST',
@@ -140,6 +149,7 @@ class ApiClient {
       currency: string;
       invoiceDate: string;
       downloadUrl: string | null;
+      items?: InvoiceLineItem[] | null;
       createdAt: string;
     }>>(`/api/invoices?page=${page}&pageSize=${pageSize}`);
   }

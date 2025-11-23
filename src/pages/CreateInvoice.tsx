@@ -14,13 +14,19 @@ const CreateInvoice: React.FC = () => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
-  const [analysisItems, setAnalysisItems] = useState<Array<{ description?: string | null; total?: number | null }>>([]);
+  const [analysisItems, setAnalysisItems] = useState<Array<{
+    description: string;
+    quantity?: number | null;
+    unitPrice?: number | null;
+    totalPrice?: number | null;
+  }>>([]);
   const [readyToSave, setReadyToSave] = useState(false);
   const [lastInvoiceId, setLastInvoiceId] = useState<string | null>(null);
   const [generatedPdfUrl, setGeneratedPdfUrl] = useState<string | null>(null);
   const [pendingTemplate, setPendingTemplate] = useState<'basic' | 'advanced' | 'elite' | null>(null);
   const [lastTemplate, setLastTemplate] = useState<'basic' | 'advanced' | 'elite' | null>(null);
   const [downloadingLatest, setDownloadingLatest] = useState(false);
+  const [notesEditedManually, setNotesEditedManually] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { t } = useLanguage();
@@ -44,10 +50,28 @@ const CreateInvoice: React.FC = () => {
     [t]
   );
 
+  const buildNotesSummary = React.useCallback((analysis: any) => {
+    const vendor = analysis?.vendorName?.trim() || 'your vendor';
+    const date = analysis?.invoiceDate
+      ? new Date(analysis.invoiceDate).toLocaleDateString()
+      : new Date().toLocaleDateString();
+    const itemCount = analysis?.items?.length || analysisItems.length;
+    const total = analysis?.totalAmount
+      ? `${analysis.totalAmount.toFixed(2)} ${analysis?.currencyCode || 'EUR'}`
+      : `${amount || '0.00'} EUR`;
+    return `Receipt captured from ${vendor} on ${date}. ${itemCount} line items totaling ${total}.`;
+  }, [analysisItems.length, amount]);
+
+  const formatQuantity = React.useCallback((value?: number | null) => {
+    if (value == null) return '';
+    return Number.isInteger(value) ? value.toString() : value.toFixed(2);
+  }, []);
+
   const resetPdfState = React.useCallback(() => {
     setLastInvoiceId(null);
     setGeneratedPdfUrl(null);
     setLastTemplate(null);
+    setNotesEditedManually(false);
   }, []);
 
   const triggerPdfDownload = React.useCallback(
@@ -109,6 +133,14 @@ const CreateInvoice: React.FC = () => {
         serviceDescription: serviceDescription.trim(),
         amount: parsedAmount,
         invoiceDate: date,
+        items: analysisItems.length
+          ? analysisItems.map((item) => ({
+              description: item.description,
+              quantity: item.quantity ?? null,
+              unitPrice: item.unitPrice ?? null,
+              totalPrice: item.totalPrice ?? null,
+            }))
+          : undefined,
       });
 
       toast({
@@ -136,6 +168,7 @@ const CreateInvoice: React.FC = () => {
       setAmount('');
       setDate(new Date().toISOString().split('T')[0]);
       setAnalysisItems([]);
+      setNotesEditedManually(false);
       setReadyToSave(false);
       setPendingTemplate(null);
     } catch (error: any) {
@@ -177,22 +210,20 @@ const CreateInvoice: React.FC = () => {
       }
 
       if (response.items?.length) {
-        setAnalysisItems(
-          response.items.map((item: any) => ({
-            description: item.description,
-            total: item.totalPrice ?? item.unitPrice,
+        const parsedItems = response.items
+          .map((item: any) => ({
+            description: item.description?.trim(),
+            quantity: item.quantity ?? null,
+            unitPrice: item.unitPrice ?? null,
+            totalPrice: item.totalPrice ?? item.unitPrice ?? null,
           }))
-        );
+          .filter((item: any) => item.description);
+        setAnalysisItems(parsedItems);
+      }
 
-        if (!serviceDescription) {
-          const description = response.items
-            .map((item: any) => item.description)
-            .filter(Boolean)
-            .join(', ');
-          if (description) {
-            setServiceDescription(description);
-          }
-        }
+      if (!notesEditedManually || !serviceDescription.trim()) {
+        setServiceDescription(buildNotesSummary(response));
+        setNotesEditedManually(false);
       }
 
       toast({
@@ -356,6 +387,7 @@ const CreateInvoice: React.FC = () => {
                 value={serviceDescription}
                 onChange={(e) => {
                   setServiceDescription(e.target.value);
+                  setNotesEditedManually(true);
                   setReadyToSave(true);
                   if (lastInvoiceId || generatedPdfUrl || lastTemplate) {
                     resetPdfState();
@@ -433,9 +465,17 @@ const CreateInvoice: React.FC = () => {
               <ul className="space-y-1 text-sm text-muted-foreground">
                 {analysisItems.slice(0, 5).map((item, index) => (
                   <li key={index} className="flex justify-between">
-                    <span>{item.description || t('invoice.itemPlaceholder')}</span>
-                    {item.total != null && (
-                      <span>{item.total.toFixed(2)}€</span>
+                    <span>
+                      {item.description || t('invoice.itemPlaceholder')}
+                      {item.quantity != null && (
+                        <span className="text-muted-foreground"> · ×{formatQuantity(item.quantity)}</span>
+                      )}
+                      {item.unitPrice != null && (
+                        <span className="text-muted-foreground"> · @{item.unitPrice.toFixed(2)}€</span>
+                      )}
+                    </span>
+                    {item.totalPrice != null && (
+                      <span>{item.totalPrice.toFixed(2)}€</span>
                     )}
                   </li>
                 ))}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, FileText, Receipt, Settings, LogOut } from 'lucide-react';
+import { Home, FileText, Receipt, Settings, LogOut, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -24,8 +24,14 @@ const Navigation: React.FC = () => {
     <nav className="bg-card border-b border-border px-4 py-3">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <div className="text-2xl font-bold text-primary">
-          InvoiceEasy
+        <div className="flex items-center gap-2 text-2xl font-bold text-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500 via-orange-400 to-yellow-300 text-white shadow-sm">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div className="text-left">
+            <div className="leading-none">InvoiceEasy</div>
+            <p className="text-xs text-muted-foreground font-normal">Smart receipts & billing</p>
+          </div>
         </div>
 
         {/* Navigation Links - Hidden on small screens */}

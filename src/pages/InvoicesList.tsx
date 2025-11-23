@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Download, FileText, Loader2, Trash2 } from 'lucide-react';
-import { apiClient } from '@/lib/api';
+import { apiClient, InvoiceLineItem } from '@/lib/api';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { downloadBlob } from '@/lib/download';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface InvoiceListItem {
   id: string;
@@ -14,6 +24,7 @@ interface InvoiceListItem {
   currency: string;
   invoiceDate: string;
   downloadUrl: string | null;
+  items?: InvoiceLineItem[] | null;
   createdAt: string;
 }
 
@@ -42,6 +53,8 @@ const InvoicesList: React.FC = () => {
   const [hasMore, setHasMore] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<InvoiceListItem | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const activeLocale = localeMap[language] ?? 'en-US';
 
   useEffect(() => {
@@ -140,14 +153,17 @@ const InvoicesList: React.FC = () => {
     }
   };
 
-  const handleDelete = async (invoice: InvoiceListItem) => {
-    const confirmed = window.confirm(t('invoiceHistory.deleteConfirm'));
-    if (!confirmed) return;
+  const handleDeleteClick = (invoice: InvoiceListItem) => {
+    setDeleteTarget(invoice);
+    setDeleteDialogOpen(true);
+  };
 
-    setDeletingId(invoice.id);
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeletingId(deleteTarget.id);
     try {
-      await apiClient.deleteInvoice(invoice.id);
-      setInvoices((prev) => prev.filter((item) => item.id !== invoice.id));
+      await apiClient.deleteInvoice(deleteTarget.id);
+      setInvoices((prev) => prev.filter((item) => item.id !== deleteTarget.id));
       toast({
         title: t('toast.success'),
         description: t('invoiceHistory.deleted'),
@@ -160,7 +176,15 @@ const InvoicesList: React.FC = () => {
       });
     } finally {
       setDeletingId(null);
+      setDeleteDialogOpen(false);
+      setDeleteTarget(null);
     }
+  };
+
+  const closeDeleteDialog = () => {
+    if (deletingId) return;
+    setDeleteDialogOpen(false);
+    setDeleteTarget(null);
   };
 
   return (
@@ -256,7 +280,7 @@ const InvoicesList: React.FC = () => {
 
                 <button
                   type="button"
-                  onClick={() => void handleDelete(invoice)}
+                  onClick={() => handleDeleteClick(invoice)}
                   disabled={deletingId === invoice.id}
                   className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition ${
                     deletingId === invoice.id
@@ -300,6 +324,37 @@ const InvoicesList: React.FC = () => {
           )}
         </button>
       )}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => (open ? setDeleteDialogOpen(true) : closeDeleteDialog())}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('invoiceHistory.deleteConfirm')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget?.customerName
+                ? `${t('invoiceHistory.savedOn')}: ${formatInvoiceDate(deleteTarget.invoiceDate)} — ${deleteTarget.customerName}`
+                : t('invoiceHistory.subtitle')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={closeDeleteDialog} disabled={!!deletingId}>
+              {t('common.cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={!!deletingId}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingId ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t('invoice.saving')}
+                </>
+              ) : (
+                t('common.delete')
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
