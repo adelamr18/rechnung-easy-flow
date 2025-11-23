@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Crown, Check, Loader } from 'lucide-react';
+import { Settings as SettingsIcon, Crown, Check, Loader, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -11,12 +11,15 @@ const Settings: React.FC = () => {
   const { user, refreshAuth } = useAuth();
   const { toast } = useToast();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [showProModal, setShowProModal] = useState(false);
+  const [unlockingPro, setUnlockingPro] = useState(false);
 
   const normalizePlan = (plan?: string | null) => {
     switch ((plan ?? 'starter').toLowerCase()) {
       case 'elite':
         return 'elite';
       case 'pro':
+      case 'pro-beta':
         return 'pro';
       case 'starter':
       case 'free':
@@ -89,6 +92,27 @@ const Settings: React.FC = () => {
     }
   };
 
+  const handleUnlockProBeta = async () => {
+    setUnlockingPro(true);
+    try {
+      await apiClient.unlockProBeta();
+      await refreshAuth();
+      toast({
+        title: t('beta.unlockTitle'),
+        description: t('beta.unlockBody'),
+      });
+      setShowProModal(false);
+    } catch (error: any) {
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.errorOccurred'),
+        variant: 'destructive',
+      });
+    } finally {
+      setUnlockingPro(false);
+    }
+  };
+
   const plans = [
     {
       id: 'starter',
@@ -106,9 +130,9 @@ const Settings: React.FC = () => {
     },
     {
       id: 'pro',
-      name: t('settings.pro'),
-      price: '10€',
-      period: t('settings.perMonth'),
+      name: `${t('settings.pro')} (Beta)`,
+      price: t('settings.free'),
+      period: 'Beta',
       features: [
         t('settings.proFeature1'),
         t('settings.proFeature2'),
@@ -116,7 +140,7 @@ const Settings: React.FC = () => {
         t('settings.proFeature4'),
       ],
       color: 'btn-primary',
-      action: () => handleUpgrade('pro'),
+      action: () => setShowProModal(true),
     },
     {
       id: 'elite',
@@ -136,6 +160,15 @@ const Settings: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-8">
+      {currentPlan === 'starter' && (
+        <div className="card-highlight flex items-center gap-3 text-sm text-foreground border border-dashed border-primary/40 bg-primary/5 p-4 rounded-xl">
+          <AlertCircle className="h-5 w-5 text-primary" />
+          <div>
+            <p>{t('beta.noticeSoft')}</p>
+            <p className="text-muted-foreground text-xs mt-1">{t('beta.noticeStrong')}</p>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="card-warm">
         <div className="flex items-center gap-4">
@@ -221,6 +254,11 @@ const Settings: React.FC = () => {
                           ({t('settings.comingSoon')})
                         </span>
                       )}
+                      {plan.id === 'pro' && (
+                        <span className="text-xs font-semibold uppercase tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                          Beta
+                        </span>
+                      )}
                     </h3>
                     <div className="flex items-baseline justify-center gap-1">
                       {isComingSoon ? (
@@ -229,7 +267,7 @@ const Settings: React.FC = () => {
                         </span>
                       ) : (
                         <>
-                          <span className="text-3xl font-bold text-foreground">
+                          <span className={`text-3xl font-bold ${plan.id === 'pro' ? 'text-muted-foreground' : 'text-foreground'}`}>
                             {plan.price}
                           </span>
                           <span className="text-muted-foreground">
@@ -272,7 +310,7 @@ const Settings: React.FC = () => {
                       ) : (
                         <>
                           <Crown className="h-5 w-5" />
-                          {t('settings.upgrade')}
+                          {plan.id === 'pro' ? t('settings.unlockProBeta') : t('settings.upgrade')}
                         </>
                       )}
                     </button>
@@ -289,12 +327,36 @@ const Settings: React.FC = () => {
         <div className="text-center text-sm text-muted-foreground">
           <p>
             {t('settings.contact')}{' '}
-            <a href="mailto:support@invoiceeasy.de" className="text-primary hover:text-primary/80">
-              support@invoiceeasy.de
+            <a href="mailto:support@invoiceeasy.org" className="text-primary hover:text-primary/80">
+              support@invoiceeasy.org
             </a>
           </p>
         </div>
       </div>
+      {showProModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-background p-6 shadow-xl space-y-4">
+            <h3 className="text-xl font-semibold text-foreground">{t('beta.unlockTitle')}</h3>
+            <p className="text-sm text-muted-foreground">{t('beta.unlockBody')}</p>
+            <div className="rounded-xl border border-dashed border-primary/40 p-4 text-sm text-foreground">
+              {t('beta.unlockPrompt')}
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                className="btn-primary flex-1 disabled:opacity-70"
+                onClick={handleUnlockProBeta}
+                disabled={unlockingPro}
+              >
+                {unlockingPro ? <Loader className="h-4 w-4 animate-spin" /> : t('settings.unlockProBeta')}
+              </button>
+              <button type="button" className="btn-secondary flex-1" onClick={() => setShowProModal(false)}>
+                {t('beta.cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -9,6 +9,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Layout/Footer";
 
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -19,6 +20,9 @@ import UploadExpense from "@/pages/UploadExpense";
 import ExpensesList from "@/pages/ExpensesList";
 import Settings from "@/pages/Settings";
 import NotFound from "./pages/NotFound";
+import Impressum from "@/pages/Impressum";
+import Datenschutz from "@/pages/Datenschutz";
+import Terms from "@/pages/Terms";
 
 const queryClient = new QueryClient();
 
@@ -30,11 +34,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navigation />
-      <main className="py-6">
-        {children}
-      </main>
+      <main className="flex-1 py-6">{children}</main>
+      <Footer />
     </div>
   );
 };
@@ -46,8 +49,20 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      <main className="flex-1 py-6">{children}</main>
+      <Footer />
+    </div>
+  );
 };
+
+const LegalLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="min-h-screen flex flex-col bg-background">
+    <main className="flex-1 py-6">{children}</main>
+    <Footer />
+  </div>
+);
 
 const AppRoutes = () => (
   <Routes>
@@ -121,6 +136,32 @@ const AppRoutes = () => (
 
     {/* Redirect root to dashboard or login */}
     <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+    {/* Legal pages */}
+    <Route
+      path="/impressum"
+      element={
+        <LegalLayout>
+          <Impressum />
+        </LegalLayout>
+      }
+    />
+    <Route
+      path="/datenschutz"
+      element={
+        <LegalLayout>
+          <Datenschutz />
+        </LegalLayout>
+      }
+    />
+    <Route
+      path="/agb"
+      element={
+        <LegalLayout>
+          <Terms />
+        </LegalLayout>
+      }
+    />
     
     {/* Catch all */}
     <Route path="*" element={<NotFound />} />

@@ -236,9 +236,11 @@ const InvoicesList: React.FC = () => {
                     <Calendar className="h-4 w-4" />
                     {formatInvoiceDate(invoice.invoiceDate)}
                   </div>
-                  <p className="text-xl font-semibold text-foreground">
-                    {invoice.customerName || t('invoice.customer')}
-                  </p>
+                  {invoice.customerName && (
+                    <p className="text-xl font-semibold text-foreground">
+                      {invoice.customerName}
+                    </p>
+                  )}
                   {invoice.serviceDescription && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {invoice.serviceDescription}

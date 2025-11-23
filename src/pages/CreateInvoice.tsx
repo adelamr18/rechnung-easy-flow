@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, FileText, Euro, Calendar, Save, Upload, Loader2, ShieldAlert, Download } from 'lucide-react';
+import { User, FileText, Euro, Calendar, Save, Upload, Loader2, ShieldAlert, Download, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -27,17 +27,22 @@ const CreateInvoice: React.FC = () => {
   const [lastTemplate, setLastTemplate] = useState<'basic' | 'advanced' | 'elite' | null>(null);
   const [downloadingLatest, setDownloadingLatest] = useState(false);
   const [notesEditedManually, setNotesEditedManually] = useState(false);
+  const [betaModalOpen, setBetaModalOpen] = useState(false);
+  const [betaWarningMessage, setBetaWarningMessage] = useState<string | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const [unlockingPro, setUnlockingPro] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, refreshAuth } = useAuth();
   const { toast } = useToast();
   const normalizedPlan = (user?.plan ?? 'starter').toLowerCase();
-  const isPremiumPlan = normalizedPlan === 'pro' || normalizedPlan === 'elite';
+  const isPremiumPlan = normalizedPlan === 'pro' || normalizedPlan === 'elite' || normalizedPlan === 'pro-beta';
   const isFormValid = serviceDescription.trim().length > 0 && amount.trim().length > 0;
   const pdfDescriptionKey = React.useMemo(() => {
     if (normalizedPlan === 'elite') return 'invoice.pdfSectionSubtitleElite';
-    if (normalizedPlan === 'pro') return 'invoice.pdfSectionSubtitlePro';
+    if (normalizedPlan === 'pro' || normalizedPlan === 'pro-beta') return 'invoice.pdfSectionSubtitlePro';
     return 'invoice.pdfSectionSubtitleStarter';
   }, [normalizedPlan]);
 
@@ -153,7 +158,7 @@ const CreateInvoice: React.FC = () => {
       const defaultTemplate: 'basic' | 'advanced' | 'elite' =
         normalizedPlan === 'elite'
           ? 'elite'
-          : normalizedPlan === 'pro'
+          : normalizedPlan === 'pro' || normalizedPlan === 'pro-beta'
             ? 'advanced'
             : 'basic';
       const templateToStore = result.downloadUrl ? defaultTemplate : null;
@@ -171,6 +176,11 @@ const CreateInvoice: React.FC = () => {
       setNotesEditedManually(false);
       setReadyToSave(false);
       setPendingTemplate(null);
+
+      if (result.meta?.betaWarning) {
+        setBetaWarningMessage(result.meta.betaWarning);
+        setBetaModalOpen(true);
+      }
     } catch (error: any) {
       toast({
         title: t('auth.error'),
@@ -179,6 +189,55 @@ const CreateInvoice: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!feedbackMessage.trim()) {
+      toast({
+        title: t('beta.modalSubtitle'),
+        description: t('beta.feedbackLabel'),
+      });
+      return;
+    }
+
+    setSubmittingFeedback(true);
+    try {
+      await apiClient.submitBetaFeedback(feedbackMessage.trim());
+      toast({
+        title: t('beta.feedbackThanks'),
+        description: t('beta.modalSubtitle'),
+      });
+      setFeedbackMessage('');
+    } catch (error: any) {
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.errorOccurred'),
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  };
+
+  const handleUnlockProBeta = async () => {
+    setUnlockingPro(true);
+    try {
+      await apiClient.unlockProBeta();
+      await refreshAuth();
+      toast({
+        title: t('beta.unlockTitle'),
+        description: t('beta.unlockBody'),
+      });
+      setBetaModalOpen(false);
+    } catch (error: any) {
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.errorOccurred'),
+        variant: 'destructive',
+      });
+    } finally {
+      setUnlockingPro(false);
     }
   };
 
@@ -634,6 +693,59 @@ const CreateInvoice: React.FC = () => {
           )}
         </form>
       </div>
+      {betaModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-background p-6 shadow-xl space-y-4">
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                {t('beta.modalTitle')}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t('beta.modalSubtitle')}
+                {betaWarningMessage ? ` ${t(betaWarningMessage)}` : ''}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">{t('beta.feedbackLabel')}</label>
+              <textarea
+                className="w-full rounded-lg border border-input bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                rows={4}
+                placeholder={t('beta.feedbackPlaceholder')}
+                value={feedbackMessage}
+                onChange={(e) => setFeedbackMessage(e.target.value)}
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                className="btn-primary flex-1 disabled:opacity-70"
+                onClick={handleSubmitFeedback}
+                disabled={submittingFeedback}
+              >
+                {submittingFeedback ? <Loader2 className="h-4 w-4 animate-spin" /> : t('beta.sendFeedback')}
+              </button>
+              <button type="button" className="btn-secondary flex-1" onClick={() => setBetaModalOpen(false)}>
+                {t('beta.cancel')}
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-dashed border-primary/40 p-4 space-y-3">
+              <p className="text-sm text-foreground">{t('beta.unlockPrompt')}</p>
+              <button
+                type="button"
+                className="btn-large btn-primary w-full disabled:opacity-70"
+                onClick={handleUnlockProBeta}
+                disabled={unlockingPro}
+              >
+                {unlockingPro ? <Loader2 className="h-4 w-4 animate-spin" /> : t('beta.unlockButton')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

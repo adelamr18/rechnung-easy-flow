@@ -11,8 +11,17 @@ export interface ApiError {
   error: string;
 }
 
+type RequestOptions = RequestInit & {
+  suppressUnauthorizedHandler?: boolean;
+};
+
 class ApiClient {
   private accessToken: string | null = null;
+  private unauthorizedHandler?: (message?: string) => void;
+
+  setUnauthorizedHandler(handler: ((message?: string) => void) | null) {
+    this.unauthorizedHandler = handler ?? undefined;
+  }
 
   setAccessToken(token: string | null) {
     this.accessToken = token;
@@ -32,12 +41,13 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestOptions = {}
   ): Promise<T> {
+    const { suppressUnauthorizedHandler, ...requestOptions } = options;
     const token = this.getAccessToken();
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...requestOptions.headers,
     };
 
     if (token) {
@@ -45,7 +55,7 @@ class ApiClient {
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
+      ...requestOptions,
       headers,
     });
 
@@ -55,7 +65,15 @@ class ApiClient {
       }
       const text = await response.text();
       const error: ApiError = text ? JSON.parse(text) : { error: 'Unknown error' };
-      throw new Error(error.error || `HTTP ${response.status}`);
+      const message = error.error || `HTTP ${response.status}`;
+
+      if (!suppressUnauthorizedHandler && (response.status === 401 || response.status === 403)) {
+        this.unauthorizedHandler?.(message);
+      }
+
+      const err = new Error(message) as Error & { status?: number };
+      err.status = response.status;
+      throw err;
     }
 
     if (response.status === 204 || response.status === 205) {
@@ -81,14 +99,18 @@ class ApiClient {
   }
 
   async refreshToken(refreshToken: string) {
-    return this.request<{ accessToken: string; refreshToken: string; user: any }>('/api/auth/refresh', {
-      method: 'POST',
-      body: JSON.stringify({ refreshToken }),
-    });
+    return this.request<{ accessToken: string; refreshToken: string; user: any }>(
+      '/api/auth/refresh',
+      {
+        method: 'POST',
+        body: JSON.stringify({ refreshToken }),
+        suppressUnauthorizedHandler: true,
+      }
+    );
   }
 
   async logout() {
-    await this.request('/api/auth/logout', { method: 'POST' });
+    await this.request('/api/auth/logout', { method: 'POST', suppressUnauthorizedHandler: true });
     this.setAccessToken(null);
   }
 
@@ -134,6 +156,7 @@ class ApiClient {
       downloadUrl: string | null;
       items?: InvoiceLineItem[] | null;
       createdAt: string;
+      meta?: Record<string, string> | null;
     }>('/api/invoices', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -321,6 +344,19 @@ class ApiClient {
     return this.request<{ plan: string }>('/api/payments/confirm', {
       method: 'POST',
       body: JSON.stringify({ sessionId }),
+    });
+  }
+
+  async submitBetaFeedback(message: string) {
+    return this.request('/api/beta/feedback', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    });
+  }
+
+  async unlockProBeta() {
+    return this.request<{ plan: string }>('/api/beta/unlock', {
+      method: 'POST',
     });
   }
 }
