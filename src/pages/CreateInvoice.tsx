@@ -325,17 +325,16 @@ const CreateInvoice: React.FC = () => {
                 className="btn-large btn-primary min-w-[220px]"
                 disabled={analyzing}
               >
-                {analyzing ? (
-                  <>
+                <span className="flex items-center justify-center gap-2">
+                  {analyzing ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
-                    {t('invoice.analyzing')}
-                  </>
-                ) : (
-                  <>
+                  ) : (
                     <Upload className="h-5 w-5" />
-                    {t('invoice.uploadInvoice')}
-                  </>
-                )}
+                  )}
+                  <span>
+                    {analyzing ? t('invoice.analyzing') : t('invoice.uploadInvoice')}
+                  </span>
+                </span>
               </button>
             </div>
 
@@ -493,17 +492,14 @@ const CreateInvoice: React.FC = () => {
             disabled={loading || analyzing || !readyToSave || !isFormValid}
             className={`btn-large btn-primary w-full ${loading || analyzing || !readyToSave || !isFormValid ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            {loading ? (
-              <>
+            <span className="flex items-center justify-center gap-2">
+              {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
-                {t('invoice.saving')}
-              </>
-            ) : (
-              <>
+              ) : (
                 <Save className="h-5 w-5" />
-                {t('invoice.save')}
-              </>
-            )}
+              )}
+              <span>{loading ? t('invoice.saving') : t('invoice.save')}</span>
+            </span>
           </button>
 
           <div className="mt-6 rounded-xl border border-border bg-muted/20 p-5 space-y-4">

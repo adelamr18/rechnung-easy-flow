@@ -121,16 +121,16 @@ const Settings: React.FC = () => {
     {
       id: 'elite',
       name: t('settings.elite'),
-      price: '20€',
-      period: t('settings.perMonth'),
+      price: '',
+      period: '',
       features: [
         t('settings.eliteFeature1'),
         t('settings.eliteFeature2'),
         t('settings.eliteFeature3'),
-        t('settings.eliteFeature4'),
       ],
       color: 'btn-primary',
-      action: () => handleUpgrade('elite'),
+      action: null,
+      comingSoon: true,
     },
   ];
 
@@ -197,6 +197,7 @@ const Settings: React.FC = () => {
           {plans.map((plan) => {
             const isCurrent = currentPlan === plan.id;
             const isLoading = loadingPlan === plan.id;
+            const isComingSoon = Boolean((plan as any).comingSoon);
             return (
               <div key={plan.name} className="flex">
                 <div
@@ -204,7 +205,7 @@ const Settings: React.FC = () => {
                     isCurrent
                       ? 'border-primary bg-primary/5'
                       : 'border-border bg-background'
-                  }`}
+                  } ${isComingSoon ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''}`}
                 >
                   {isCurrent && (
                     <div className="absolute -top-3 left-6 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
@@ -213,47 +214,69 @@ const Settings: React.FC = () => {
                   )}
 
                   <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold text-foreground mb-2">
-                      {plan.name}
+                    <h3 className="text-xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
+                      <span>{plan.name}</span>
+                      {isComingSoon && (
+                        <span className="text-sm text-muted-foreground">
+                          ({t('settings.comingSoon')})
+                        </span>
+                      )}
                     </h3>
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-3xl font-bold text-foreground">
-                    {plan.price}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {plan.period}
-                  </span>
-                </div>
-              </div>
+                    <div className="flex items-baseline justify-center gap-1">
+                      {isComingSoon ? (
+                        <span className="text-muted-foreground">
+                          {t('settings.launchingSoon')}
+                        </span>
+                      ) : (
+                        <>
+                          <span className="text-3xl font-bold text-foreground">
+                            {plan.price}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {plan.period}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
 
-              <ul className="space-y-3 mb-6 flex-1">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-center gap-3">
-                    <Check className="h-4 w-4 text-success flex-shrink-0" />
-                    <span className="text-sm text-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+                  <ul className="space-y-3 mb-6 flex-1">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-center gap-3">
+                        <Check className="h-4 w-4 text-success flex-shrink-0" />
+                        <span className="text-sm text-foreground">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-              <button
-                className={`btn-large ${plan.color} w-full`}
-                disabled={isCurrent || isLoading}
-                onClick={!isCurrent && plan.action ? plan.action : undefined}
-              >
-                {isCurrent ? (
-                  t('settings.currentPlan')
-                ) : isLoading ? (
-                  <>
-                    <Loader className="h-5 w-5 animate-spin" />
-                    {t('expenses.saving')}
-                  </>
-                    ) : (
-                      <>
-                        <Crown className="h-5 w-5" />
-                        {t('settings.upgrade')}
-                      </>
-                    )}
-                  </button>
+                  {isComingSoon ? (
+                    <button
+                      className="opacity-40 cursor-not-allowed bg-muted text-muted-foreground px-4 py-2 rounded-md w-full font-medium"
+                      disabled
+                    >
+                      {t('settings.comingSoon')}
+                    </button>
+                  ) : (
+                    <button
+                      className={`btn-large ${plan.color} w-full`}
+                      disabled={isCurrent || isLoading}
+                      onClick={!isCurrent && plan.action ? plan.action : undefined}
+                    >
+                      {isCurrent ? (
+                        t('settings.currentPlan')
+                      ) : isLoading ? (
+                        <>
+                          <Loader className="h-5 w-5 animate-spin" />
+                          {t('expenses.saving')}
+                        </>
+                      ) : (
+                        <>
+                          <Crown className="h-5 w-5" />
+                          {t('settings.upgrade')}
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
             );

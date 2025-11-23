@@ -154,13 +154,13 @@ const Dashboard: React.FC = () => {
                 <Bar 
                   dataKey="income" 
                   fill="hsl(var(--success))" 
-                  name="Einnahmen"
+                  name={t('dashboard.income')}
                   radius={[4, 4, 0, 0]}
                 />
                 <Bar 
                   dataKey="expenses" 
                   fill="hsl(var(--warning))" 
-                  name="Ausgaben"
+                  name={t('dashboard.expenses')}
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
