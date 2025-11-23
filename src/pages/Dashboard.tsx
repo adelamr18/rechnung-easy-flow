@@ -29,7 +29,7 @@ const Dashboard: React.FC = () => {
       setProfit(summary.profit);
       
       const transformed = summary.chart.map(point => ({
-        month: point.label.split(' ')[0],
+        label: point.label.split(' ')[0],
         income: point.income,
         expenses: point.expenses,
       }));
@@ -143,7 +143,7 @@ const Dashboard: React.FC = () => {
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis 
-                  dataKey="month" 
+                  dataKey="label" 
                   stroke="hsl(var(--muted-foreground))"
                   fontSize={12}
                 />
