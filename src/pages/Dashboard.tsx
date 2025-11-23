@@ -28,12 +28,7 @@ const Dashboard: React.FC = () => {
       setExpenses(summary.expenses);
       setProfit(summary.profit);
       
-      const transformed = summary.chart.map(point => ({
-        month: point.label.split(' ')[0],
-        income: point.income,
-        expenses: point.expenses,
-      }));
-      setChartData(transformed);
+      setChartData(summary.chart);
     } catch (error: any) {
       toast({
         title: t('auth.error'),
@@ -143,7 +138,7 @@ const Dashboard: React.FC = () => {
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis 
-                  dataKey="month" 
+                  dataKey="label" 
                   stroke="hsl(var(--muted-foreground))"
                   fontSize={12}
                 />

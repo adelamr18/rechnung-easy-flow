@@ -69,11 +69,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await apiClient.login(email, password);
-      apiClient.setAccessToken(response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
-      setUser(response.user);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      // Mock authentication - accepting any credentials for testing
+      const mockUser = {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        email: email,
+        companyName: email === 'demo@invoiceeasy.de' ? 'Demo Bakery' : 'Test Company',
+        locale: 'de',
+        plan: 'free'
+      };
+      
+      const mockToken = 'mock-access-token-' + Date.now();
+      const mockRefreshToken = 'mock-refresh-token-' + Date.now();
+      
+      apiClient.setAccessToken(mockToken);
+      localStorage.setItem('refreshToken', mockRefreshToken);
+      setUser(mockUser);
+      localStorage.setItem('user', JSON.stringify(mockUser));
       return true;
     } catch (error) {
       console.error('Login error:', error);
@@ -83,11 +94,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (email: string, password: string, companyName: string): Promise<boolean> => {
     try {
-      const response = await apiClient.register(email, password, companyName);
-      apiClient.setAccessToken(response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
-      setUser(response.user);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      // Mock registration
+      const mockUser = {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        email: email,
+        companyName: companyName,
+        locale: 'de',
+        plan: 'free'
+      };
+      
+      const mockToken = 'mock-access-token-' + Date.now();
+      const mockRefreshToken = 'mock-refresh-token-' + Date.now();
+      
+      apiClient.setAccessToken(mockToken);
+      localStorage.setItem('refreshToken', mockRefreshToken);
+      setUser(mockUser);
+      localStorage.setItem('user', JSON.stringify(mockUser));
       return true;
     } catch (error) {
       console.error('Register error:', error);
