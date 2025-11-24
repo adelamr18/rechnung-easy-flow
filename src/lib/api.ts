@@ -347,10 +347,10 @@ class ApiClient {
     });
   }
 
-  async submitBetaFeedback(message: string) {
+  async submitBetaFeedback(payload: { message?: string; source: string; rating?: number }) {
     return this.request('/api/beta/feedback', {
       method: 'POST',
-      body: JSON.stringify({ message }),
+      body: JSON.stringify(payload),
     });
   }
 

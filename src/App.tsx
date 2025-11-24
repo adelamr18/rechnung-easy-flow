@@ -27,112 +27,68 @@ import LandingPage from "@/pages/LandingPage";
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
 
-  return (
+  const withFooter = (node: React.ReactNode) => (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navigation />
-      <main className="flex-1 py-6">{children}</main>
+      <main className="flex-1 py-6">{node}</main>
       <Footer />
     </div>
   );
-};
 
-const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  const renderPrivate = (node: React.ReactNode) =>
+    isAuthenticated ? (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Navigation />
+        <main className="flex-1 py-6">{node}</main>
+        <Footer />
+      </div>
+    ) : (
+      <Navigate to="/login" replace />
+    );
+
+  const renderPublicAuth = (node: React.ReactNode) =>
+    isAuthenticated ? <Navigate to="/dashboard" replace /> : withFooter(node);
+
+  const renderLegal = (node: React.ReactNode) => withFooter(node);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <main className="flex-1 py-6">{children}</main>
-      <Footer />
-    </div>
-  );
-};
-
-const LegalLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="min-h-screen flex flex-col bg-background">
-    <main className="flex-1 py-6">{children}</main>
-    <Footer />
-  </div>
-);
-
-const AppRoutes = () => (
   <Routes>
     {/* Public routes */}
     <Route 
       path="/login" 
-      element={
-        <PublicRoute>
-          <Login />
-        </PublicRoute>
-      } 
+      element={renderPublicAuth(<Login />)} 
     />
     <Route 
       path="/register" 
-      element={
-        <PublicRoute>
-          <Register />
-        </PublicRoute>
-      } 
+      element={renderPublicAuth(<Register />)} 
     />
 
     {/* Protected routes */}
     <Route 
       path="/dashboard" 
-      element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      } 
+      element={renderPrivate(<Dashboard />)} 
     />
     <Route 
       path="/invoices" 
-      element={
-        <ProtectedRoute>
-          <InvoicesList />
-        </ProtectedRoute>
-      } 
+      element={renderPrivate(<InvoicesList />)} 
     />
     <Route 
       path="/invoices/create" 
-      element={
-        <ProtectedRoute>
-          <CreateInvoice />
-        </ProtectedRoute>
-      } 
+      element={renderPrivate(<CreateInvoice />)} 
     />
     <Route 
       path="/expenses" 
-      element={
-        <ProtectedRoute>
-          <ExpensesList />
-        </ProtectedRoute>
-      } 
+      element={renderPrivate(<ExpensesList />)} 
     />
     <Route 
       path="/expenses/upload" 
-      element={
-        <ProtectedRoute>
-          <UploadExpense />
-        </ProtectedRoute>
-      } 
+      element={renderPrivate(<UploadExpense />)} 
     />
     <Route 
       path="/settings" 
-      element={
-        <ProtectedRoute>
-          <Settings />
-        </ProtectedRoute>
-      } 
+      element={renderPrivate(<Settings />)} 
     />
 
     {/* Landing page */}
@@ -141,33 +97,22 @@ const AppRoutes = () => (
     {/* Legal pages */}
     <Route
       path="/impressum"
-      element={
-        <LegalLayout>
-          <Impressum />
-        </LegalLayout>
-      }
+      element={renderLegal(<Impressum />)}
     />
     <Route
       path="/datenschutz"
-      element={
-        <LegalLayout>
-          <Datenschutz />
-        </LegalLayout>
-      }
+      element={renderLegal(<Datenschutz />)}
     />
     <Route
       path="/agb"
-      element={
-        <LegalLayout>
-          <Terms />
-        </LegalLayout>
-      }
+      element={renderLegal(<Terms />)}
     />
     
     {/* Catch all */}
-    <Route path="*" element={<NotFound />} />
+    <Route path="*" element={withFooter(<NotFound />)} />
   </Routes>
-);
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

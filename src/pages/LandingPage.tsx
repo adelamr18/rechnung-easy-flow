@@ -1,222 +1,194 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { FileText, ScanLine, BarChart3, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, BarChart3, FileText, CheckCircle2, Sparkles } from 'lucide-react';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Footer from '@/components/Layout/Footer';
 
-const LandingPage: React.FC = () => {
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden px-4 py-20 sm:py-24 lg:py-32">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center space-y-8 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm font-medium text-primary">
-              <Sparkles className="w-4 h-4" />
-              Beta Version — Free Testing Phase
-            </div>
-            
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight">
-              Simple Invoicing & Expense Tracking
-              <span className="block text-primary mt-2">for Freelancers & Small Businesses</span>
-            </h1>
-            
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Test our early version: Create professional invoices, manage expenses, and generate PDFs — completely free during the beta phase.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-              <Button asChild size="lg" className="w-full sm:w-auto text-base px-8 h-12">
-                <Link to="/register">
-                  Create Free Test Account
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto text-base px-8 h-12">
-                <Link to="/login">Login</Link>
-              </Button>
-            </div>
-            
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-2">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-success" />
-                No credit card required
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-success" />
-                Non-commercial
-              </div>
-            </div>
+const LandingPage: React.FC = () => (
+  <div className="min-h-screen bg-[#FAF7F2] text-slate-900">
+    <header className="sticky top-0 z-20 bg-[#FAF7F2]/95 backdrop-blur border-b border-slate-200">
+      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xl font-semibold text-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500 via-orange-400 to-yellow-300 text-white shadow-sm">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div className="text-left">
+            <span className="leading-none text-primary">InvoiceEasy</span>
+            <p className="text-xs text-muted-foreground font-normal">Smart receipts &amp; billing</p>
           </div>
         </div>
-      </section>
-
-      {/* Core Features */}
-      <section className="px-4 py-16 sm:py-20 bg-muted/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center space-y-4 mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-              Everything You Need to Get Started
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Powerful features designed for simplicity and efficiency
-            </p>
+        <nav className="hidden md:flex items-center gap-6 text-sm">
+          <a href="#features" className="hover:text-primary">Features</a>
+          <a href="#workflow" className="hover:text-primary">Workflow</a>
+          <a href="#beta" className="hover:text-primary">Beta Notice</a>
+        </nav>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:block">
+            <LanguageSwitcher />
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="p-6 hover:shadow-lg transition-all duration-300 border-border bg-card">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground">
-                  Automatic PDF Invoicing
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Generate clean, professional invoices with one click. Export as PDF instantly.
-                </p>
-              </div>
-            </Card>
-
-            <Card className="p-6 hover:shadow-lg transition-all duration-300 border-border bg-card">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <ScanLine className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground">
-                  Receipt OCR Extraction
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Upload a receipt photo and let AI automatically extract vendor, amount, and date.
-                </p>
-              </div>
-            </Card>
-
-            <Card className="p-6 hover:shadow-lg transition-all duration-300 border-border bg-card">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <BarChart3 className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground">
-                  Dashboard Insights
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Track your total income, expenses, and profit at a glance with visual charts.
-                </p>
-              </div>
-            </Card>
-
-            <Card className="p-6 hover:shadow-lg transition-all duration-300 border-border bg-card">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-success" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground">
-                  Free During Beta
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Unlimited access to all features during the testing phase. No hidden costs.
-                </p>
-              </div>
-            </Card>
-          </div>
+          <Link to="/login" className="text-sm font-medium text-primary hover:text-primary/80">
+            Login
+          </Link>
+          <Link
+            to="/register"
+            className="text-sm font-semibold bg-primary text-primary-foreground px-4 py-2 rounded-full hover:bg-primary/90"
+          >
+            Create Free Account
+          </Link>
         </div>
-      </section>
+      </div>
+    </header>
 
-      {/* Screenshot Section */}
-      <section className="px-4 py-16 sm:py-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center space-y-4 mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-              See It In Action
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              A glimpse into the InvoiceEasy interface
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-lg transition-all duration-300">
-              <div className="aspect-[4/3] bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center">
-                <FileText className="w-20 h-20 text-primary/30 group-hover:scale-110 transition-transform duration-300" />
-              </div>
-              <div className="p-6 bg-card border-t border-border">
-                <h3 className="text-lg font-semibold text-foreground text-center">Invoice Creator</h3>
-                <p className="text-sm text-muted-foreground text-center mt-2">Professional invoice templates</p>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-lg transition-all duration-300">
-              <div className="aspect-[4/3] bg-gradient-to-br from-success/20 via-success/10 to-success/5 flex items-center justify-center">
-                <BarChart3 className="w-20 h-20 text-success/30 group-hover:scale-110 transition-transform duration-300" />
-              </div>
-              <div className="p-6 bg-card border-t border-border">
-                <h3 className="text-lg font-semibold text-foreground text-center">Dashboard Overview</h3>
-                <p className="text-sm text-muted-foreground text-center mt-2">Financial insights at a glance</p>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-lg transition-all duration-300">
-              <div className="aspect-[4/3] bg-gradient-to-br from-accent/30 via-accent/20 to-accent/10 flex items-center justify-center">
-                <ScanLine className="w-20 h-20 text-accent-foreground/30 group-hover:scale-110 transition-transform duration-300" />
-              </div>
-              <div className="p-6 bg-card border-t border-border">
-                <h3 className="text-lg font-semibold text-foreground text-center">PDF Export</h3>
-                <p className="text-sm text-muted-foreground text-center mt-2">Ready-to-send documents</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Beta Disclaimer */}
-      <section className="px-4 py-12 bg-warning/5 border-y border-warning/20">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-warning" />
-            </div>
-            <div className="space-y-3">
-              <h2 className="text-xl font-bold text-foreground">Beta Notice</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                This platform is currently operating in a <strong>non-commercial beta testing phase</strong>. 
-                No paid services, subscriptions, or legally binding invoices are provided. All features are for 
-                development, usability testing, and feedback only.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Questions or feedback? Contact us at{' '}
-                <a href="mailto:support@invoiceeasy.org" className="text-primary hover:underline font-medium">
-                  support@invoiceeasy.org
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="px-4 py-16 sm:py-20">
-        <div className="max-w-3xl mx-auto text-center space-y-8">
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Ready to Get Started?
-          </h2>
-          <p className="text-lg text-muted-foreground leading-relaxed">
-            Join our beta testing program and help us shape the future of simple invoicing. 
-            Your feedback matters.
+    <main className="max-w-6xl mx-auto px-4 py-16 space-y-24">
+      <section className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="space-y-6">
+          <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold">
+            Beta access · Free during testing
+          </span>
+          <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+            Simple Invoicing & Expense Tracking
+            <span className="block text-primary">for Local Businesses</span>
+          </h1>
+          <p className="text-lg text-slate-600">
+            Create invoices and save every receipt in under 30 seconds — from your phone or laptop.
           </p>
-          <Button asChild size="lg" className="text-base px-8 h-12">
-            <Link to="/register">
-              Create Your Free Account
-              <ArrowRight className="ml-2 h-5 w-5" />
+          <p className="text-lg text-slate-600">
+            Perfect for cafés, bakeries, handymen, cleaners, barbers — anyone who wants fast, clean paperwork without the hassle.
+            Snap a receipt, auto-extract the details, and generate professional PDFs in seconds.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              to="/register"
+              className="bg-primary text-primary-foreground px-6 py-3 rounded-full font-semibold hover:bg-primary/90 shadow-lg shadow-primary/20"
+            >
+              Start Free Beta
             </Link>
-          </Button>
+            <a
+              href="#workflow"
+              className="px-6 py-3 rounded-full border border-primary text-primary font-semibold hover:bg-primary/5"
+            >
+              See the app
+            </a>
+          </div>
+          <p className="text-xs text-slate-500">No credit card · Free during beta</p>
+          <div className="grid sm:grid-cols-2 gap-3 pt-4">
+            {[
+              '10 languages supported',
+              'Works on mobile & desktop',
+              'Your data stored in the EU',
+              'Automatic PDF creation',
+              'OCR-powered imports',
+              'Unlimited Pro (beta)',
+            ].map((item) => (
+              <div
+                key={item}
+                className="flex items-center gap-3 rounded-xl border border-primary/15 bg-white/50 px-4 py-3 shadow-sm"
+              >
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-sm text-slate-700">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-3xl shadow-xl p-6 lg:p-8 space-y-4">
+          <div className="font-medium text-slate-700 flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            Dashboard preview
+          </div>
+          <div className="rounded-2xl overflow-hidden border border-slate-100 bg-slate-50 flex justify-center">
+            <img
+              src="/images/dashboard-preview.png"
+              alt="InvoiceEasy dashboard preview"
+              className="w-full max-w-none h-auto object-cover scale-[1.1] md:scale-[1.02] lg:scale-[0.98] transition-transform duration-300"
+              loading="lazy"
+            />
+          </div>
+          <p className="text-xs text-slate-500 text-center">
+            Actual interface preview from our internal beta — optimized for tidy, local business workflows.
+          </p>
         </div>
       </section>
 
-      <Footer />
-    </div>
-  );
-};
+      <section id="features" className="space-y-8">
+        <div className="text-center space-y-3">
+          <p className="text-sm font-semibold text-primary">Everything you need to get started</p>
+          <h2 className="text-3xl font-bold">Features built for simplicity & speed</h2>
+          <p className="text-slate-600">Powerful automation wrapped in a friendly interface.</p>
+          <p className="text-sm text-slate-500">Made for cafés, bakeries, cleaners, handymen, barbers, tutors & more.</p>
+        </div>
+        <div className="grid md:grid-cols-4 gap-6">
+          {[
+            { icon: <FileText />, title: 'Automatic PDFs', description: 'Create professional invoices in one click.' },
+            { icon: <ShieldCheck />, title: 'Secure OCR', description: 'Extract line items from receipts instantly.' },
+            { icon: <BarChart3 />, title: 'Dashboard insights', description: 'Track invoicing volume and expenses.' },
+            { icon: <Sparkles />, title: 'Beta upgrades', description: 'Unlock unlimited Pro features during beta.' },
+          ].map((feature) => (
+            <div key={feature.title} className="card-warm h-full space-y-4 text-center">
+              <div className="mx-auto h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                {feature.icon}
+              </div>
+              <h3 className="font-semibold text-lg">{feature.title}</h3>
+              <p className="text-sm text-slate-600">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="workflow" className="space-y-8">
+        <div className="text-center space-y-3">
+          <p className="text-sm font-semibold text-primary">See it in action</p>
+          <h2 className="text-3xl font-bold">A lightweight workflow for busy founders</h2>
+          <p className="text-slate-600">From upload to finished PDF in under one minute.</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            'Upload invoice or receipt',
+            'Review extracted line items',
+            'Download polished PDF',
+          ].map((step, index) => (
+            <div key={step} className="rounded-3xl border border-slate-200 bg-white p-6 space-y-4 text-center">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+                {index + 1}
+              </span>
+              <p className="font-semibold">{step}</p>
+              <p className="text-sm text-slate-600">
+                {index === 0 && 'Drag-and-drop or email your document to the inbox.'}
+                {index === 1 && 'Make quick edits; quantities and totals stay in sync.'}
+                {index === 2 && 'Use Basic, Advanced, or Elite templates — all branded for you.'}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="beta" className="rounded-3xl border border-amber-200 bg-amber-50/70 p-8 space-y-4">
+        <div className="flex items-center gap-3 text-amber-700 font-semibold text-lg">
+          <ShieldCheck className="h-6 w-6" />
+          Beta Notice
+        </div>
+        <p className="text-sm text-amber-800">
+          InvoiceEasy is in a non-commercial beta. No paid plans, no contracts — just testing and feedback so we can build the right tool for local businesses.
+        </p>
+        <p className="text-sm text-amber-800">
+          PDFs are for internal tests during this phase and should be reviewed before you forward them to customers.
+        </p>
+      </section>
+
+      <section className="text-center space-y-4">
+        <p className="text-sm text-primary font-semibold">Ready to get started?</p>
+        <h2 className="text-3xl font-bold">Join the beta and help shape the future of InvoiceEasy.</h2>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Link
+            to="/register"
+            className="bg-primary text-primary-foreground px-6 py-3 rounded-full font-semibold hover:bg-primary/90"
+          >
+            Create Free Beta Account
+          </Link>
+        </div>
+        <p className="text-xs text-slate-500">Already using InvoiceEasy? Use the Login link in the header.</p>
+      </section>
+    </main>
+    <Footer />
+  </div>
+);
 
 export default LandingPage;

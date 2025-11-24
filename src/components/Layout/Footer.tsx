@@ -19,17 +19,18 @@ const baseContent: FooterContent = {
 const localized: Partial<Record<Language, Partial<FooterContent>>> = {
   de: {
     brandLine: 'InvoiceEasy — Alle Rechte vorbehalten',
+    impressum: 'Impressum',
     datenschutz: 'Datenschutz',
     agb: 'AGB',
   },
-  es: { datenschutz: 'Privacidad', agb: 'Términos' },
-  pl: { datenschutz: 'Prywatność', agb: 'Regulamin' },
-  ru: { datenschutz: 'Конфиденциальность', agb: 'Условия' },
-  tr: { datenschutz: 'Gizlilik', agb: 'Şartlar' },
-  ar: { brandLine: 'InvoiceEasy — جميع الحقوق محفوظة', datenschutz: 'الخصوصية', agb: 'الشروط' },
-  zh: { datenschutz: '隐私政策', agb: '条款' },
-  ko: { datenschutz: '개인정보 보호', agb: '이용약관' },
-  ja: { datenschutz: 'プライバシー', agb: '利用規約' },
+  es: { impressum: 'Aviso legal', datenschutz: 'Privacidad', agb: 'Términos' },
+  pl: { impressum: 'Nota prawna', datenschutz: 'Prywatność', agb: 'Regulamin' },
+  ru: { impressum: 'Правовая информация', datenschutz: 'Конфиденциальность', agb: 'Условия' },
+  tr: { impressum: 'Künye', datenschutz: 'Gizlilik', agb: 'Şartlar' },
+  ar: { brandLine: 'InvoiceEasy — جميع الحقوق محفوظة', impressum: 'الإشعار القانوني', datenschutz: 'الخصوصية', agb: 'الشروط' },
+  zh: { impressum: '法律声明', datenschutz: '隐私政策', agb: '条款' },
+  ko: { impressum: '법적 고지', datenschutz: '개인정보 보호', agb: '이용약관' },
+  ja: { impressum: '特定商取引表示', datenschutz: 'プライバシー', agb: '利用規約' },
 };
 
 export const Footer: React.FC = () => {

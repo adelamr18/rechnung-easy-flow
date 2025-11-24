@@ -24,9 +24,9 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <Select value={language} onValueChange={(value: Language) => setLanguage(value)}>
       <SelectTrigger className="w-40 bg-card border border-border">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 whitespace-nowrap">
           <Globe className="h-4 w-4" />
-          <span className="text-sm">
+          <span className="text-sm whitespace-nowrap">
             {currentLanguage?.flag} {currentLanguage?.name}
           </span>
         </div>
