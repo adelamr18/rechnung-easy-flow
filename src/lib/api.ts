@@ -1,4 +1,5 @@
 const API_BASE_URL = 'http://localhost:5000';
+const API_KEY = import.meta.env.VITE_API_KEY || 'dGVzdC1rZXktMjU2LWJpdC1sb25nLXNlY3JldC1rZXk';
 
 export interface InvoiceLineItem {
   description: string;
@@ -47,6 +48,7 @@ class ApiClient {
     const token = this.getAccessToken();
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
+      'X-Api-Key': API_KEY,
       ...requestOptions.headers,
     };
 
@@ -116,7 +118,9 @@ class ApiClient {
 
   async analyzeInvoice(file: File) {
     const token = this.getAccessToken();
-    const headers: HeadersInit = {};
+    const headers: HeadersInit = {
+      'X-Api-Key': API_KEY,
+    };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -198,7 +202,9 @@ class ApiClient {
 
   async downloadInvoicePdf(id: string): Promise<Blob> {
     const token = this.getAccessToken();
-    const headers: HeadersInit = {};
+    const headers: HeadersInit = {
+      'X-Api-Key': API_KEY,
+    };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -227,7 +233,9 @@ class ApiClient {
 
   async createExpense(formData: FormData) {
     const token = this.getAccessToken();
-    const headers: HeadersInit = {};
+    const headers: HeadersInit = {
+      'X-Api-Key': API_KEY,
+    };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }

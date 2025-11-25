@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiClient } from '@/lib/api';
 import { downloadBlob } from '@/lib/download';
+import FeedbackModal from '@/components/FeedbackModal';
 
 const CreateInvoice: React.FC = () => {
   const [customerName, setCustomerName] = useState('');
@@ -53,7 +54,7 @@ const CreateInvoice: React.FC = () => {
   );
 
   const buildNotesSummary = React.useCallback((analysis: any) => {
-    const vendor = analysis?.vendorName?.trim() || 'your vendor';
+    const vendor = analysis?.vendorName?.trim() || t('invoice.vendorPlaceholder');
     const date = analysis?.invoiceDate
       ? new Date(analysis.invoiceDate).toLocaleDateString()
       : new Date().toLocaleDateString();
@@ -61,8 +62,8 @@ const CreateInvoice: React.FC = () => {
     const total = analysis?.totalAmount
       ? `${analysis.totalAmount.toFixed(2)} ${analysis?.currencyCode || 'EUR'}`
       : `${amount || '0.00'} EUR`;
-    return `Receipt captured from ${vendor} on ${date}. ${itemCount} line items totaling ${total}.`;
-  }, [analysisItems.length, amount]);
+    return `${t('invoice.summaryPrefix')}: ${vendor} • ${date} • ${itemCount} ${t('invoice.itemsLabel')} • ${t('invoice.summaryTotalLabel')} ${total}`;
+  }, [analysisItems.length, amount, t]);
 
   const formatQuantity = React.useCallback((value?: number | null) => {
     if (value == null) return '';
@@ -377,7 +378,7 @@ const CreateInvoice: React.FC = () => {
                   }
                 }}
                 className="input-large pl-12 w-full"
-                placeholder="Max Mustermann"
+                placeholder={t('invoice.customerPlaceholder')}
               />
             </div>
           </div>
@@ -427,7 +428,7 @@ const CreateInvoice: React.FC = () => {
                     }
                   }}
                   className="input-large pl-12 w-full"
-                  placeholder="100.00"
+                  placeholder={t('invoice.amountPlaceholder')}
                   required
                 />
               </div>

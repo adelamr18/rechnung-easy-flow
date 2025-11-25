@@ -90,18 +90,18 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">{t('beta.feedbackLabel')}</label>
+          <label className="block text-sm font-medium mb-2">{t('feedback.prompt')}</label>
           <textarea
             className="w-full rounded-lg border border-input bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             rows={4}
-            placeholder={t('beta.feedbackPlaceholder')}
+            placeholder={t('feedback.placeholder')}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
         </div>
 
         <div className="space-y-2">
-          <p className="text-sm font-medium">{'Rating (optional)'}</p>
+          <p className="text-sm font-medium">{t('feedback.rating')}</p>
           <div className="flex gap-2">
             {ratingOptions.map((value) => (
               <button
@@ -125,10 +125,10 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
             onClick={handleSubmit}
             disabled={submitting}
           >
-            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('beta.sendFeedback')}
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('feedback.send')}
           </button>
           <button type="button" className="btn-secondary flex-1" onClick={onClose}>
-            {t('beta.cancel')}
+            {t('feedback.cancel')}
           </button>
         </div>
 
