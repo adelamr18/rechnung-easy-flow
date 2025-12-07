@@ -280,7 +280,9 @@ class ApiClient {
 
   async fetchExpenseReceipt(id: string): Promise<Blob> {
     const token = this.getAccessToken();
-    const headers: HeadersInit = {};
+    const headers: HeadersInit = {
+      'X-Api-Key': API_KEY,
+    };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -299,7 +301,9 @@ class ApiClient {
 
   async analyzeReceipt(file: File) {
     const token = this.getAccessToken();
-    const headers: HeadersInit = {};
+    const headers: HeadersInit = {
+      'X-Api-Key': API_KEY,
+    };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
