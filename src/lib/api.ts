@@ -56,10 +56,14 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const url = `${API_BASE_URL}${endpoint}`;
+    console.info('[api] request start', { url, method: requestOptions.method ?? 'GET' });
+
+    const response = await fetch(url, {
       ...requestOptions,
       headers,
     });
+    console.info('[api] response', { url, status: response.status });
 
     if (!response.ok) {
       if (response.status === 204 || response.status === 205) {
@@ -87,6 +91,7 @@ class ApiClient {
   }
 
   async register(email: string, password: string, companyName?: string) {
+    console.info('[api] register start', { email, companyName, baseUrl: API_BASE_URL });
     return this.request<{ accessToken: string; refreshToken: string; user: any }>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password, companyName }),
