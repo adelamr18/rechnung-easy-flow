@@ -57,30 +57,12 @@ class ApiClient {
     }
 
     const url = `${API_BASE_URL}${endpoint}`;
-    const controller = new AbortController();
-    const timeoutMs = 20000;
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
     console.info('[api] request start', { url, method: requestOptions.method ?? 'GET' });
 
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        ...requestOptions,
-        headers,
-        signal: controller.signal,
-      });
-    } catch (err) {
-      if ((err as Error).name === 'AbortError') {
-        console.error('[api] request timeout', { url, timeoutMs });
-      } else {
-        console.error('[api] request error', { url, err });
-      }
-      clearTimeout(timeoutId);
-      throw err;
-    }
-
-    clearTimeout(timeoutId);
+    const response = await fetch(url, {
+      ...requestOptions,
+      headers,
+    });
     console.info('[api] response', { url, status: response.status });
 
     if (!response.ok) {
