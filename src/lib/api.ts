@@ -1,6 +1,9 @@
 const API_BASE_URL = 'https://rechnungeasyflowwebapi-production.up.railway.app';
 const API_KEY = import.meta.env.VITE_API_KEY;
 
+console.log('[build] VITE_API_KEY =', import.meta.env.VITE_API_KEY);
+console.log('[build] API_KEY used  =', API_KEY);
+
 export interface InvoiceLineItem {
   description: string;
   quantity?: number | null;
