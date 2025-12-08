@@ -16,14 +16,33 @@ const Dashboard: React.FC = () => {
   const [expenses, setExpenses] = useState(0);
   const [profit, setProfit] = useState(0);
   const [chartData, setChartData] = useState<Array<{ label: string; income: number; expenses: number }>>([]);
+  const [range, setRange] = useState<'month' | 'all'>('month');
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
 
   useEffect(() => {
     loadSummary();
-  }, []);
+  }, [range, selectedMonth]);
 
   const loadSummary = async () => {
     try {
-      const summary = await apiClient.getMonthlySummary();
+      setLoading(true);
+
+      const params =
+        range === 'all'
+          ? { allTime: true }
+          : (() => {
+              const [yearStr, monthStr] = selectedMonth.split('-');
+              const year = Number(yearStr);
+              const month = Number(monthStr);
+              return Number.isFinite(year) && Number.isFinite(month)
+                ? { year, month }
+                : undefined;
+            })();
+
+      const summary = await apiClient.getMonthlySummary(params);
       setIncome(summary.income);
       setExpenses(summary.expenses);
       setProfit(summary.profit);
@@ -90,18 +109,48 @@ const Dashboard: React.FC = () => {
     <div className="max-w-6xl mx-auto p-4 space-y-8">
       {/* Welcome Header */}
       <div className="card-warm">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
               {t('dashboard.welcome')}, {user?.companyName}!
             </h1>
             <p className="text-muted-foreground text-lg mt-2">
-              {t('dashboard.thisMonth')} - {new Date().toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+              {range === 'all'
+                ? t('dashboard.allTime')
+                : new Date(`${selectedMonth}-01`).toLocaleDateString(undefined, {
+                    month: 'long',
+                    year: 'numeric',
+                  })}
             </p>
           </div>
-          <div className="hidden md:block">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              <DollarSign className="h-8 w-8 text-primary" />
+          <div className="flex items-center gap-3 flex-wrap">
+            <label className="text-sm text-muted-foreground">{t('dashboard.rangeLabel')}</label>
+            <input
+              type="month"
+              value={selectedMonth}
+              onChange={(e) => {
+                setRange('month');
+                setSelectedMonth(e.target.value);
+              }}
+              className="rounded-md border border-border bg-white px-3 py-2 text-sm text-foreground shadow-sm"
+              aria-label={t('dashboard.selectMonth')}
+              disabled={range === 'all'}
+            />
+            <button
+              type="button"
+              onClick={() => setRange(range === 'all' ? 'month' : 'all')}
+              className={`px-3 py-2 text-sm rounded-md border transition ${
+                range === 'all'
+                  ? 'bg-primary text-white border-primary'
+                  : 'border-border text-foreground bg-white hover:bg-muted'
+              }`}
+            >
+              {range === 'all' ? t('dashboard.selectMonth') : t('dashboard.allTime')}
+            </button>
+            <div className="hidden md:block">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                <DollarSign className="h-8 w-8 text-primary" />
+              </div>
             </div>
           </div>
         </div>

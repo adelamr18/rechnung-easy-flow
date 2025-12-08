@@ -1,5 +1,5 @@
 const API_BASE_URL = 'https://rechnungeasyflowwebapi-production.up.railway.app';
-const API_KEY = import.meta.env.VITE_API_KEY || 'dGVzdC1rZXktMjU2LWJpdC1sb25nLXNlY3JldC1rZXk';
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export interface InvoiceLineItem {
   description: string;
@@ -322,10 +322,13 @@ class ApiClient {
     return response.json();
   }
 
-  async getMonthlySummary(year?: number, month?: number) {
-    const params = new URLSearchParams();
-    if (year) params.append('year', year.toString());
-    if (month) params.append('month', month.toString());
+  async getMonthlySummary(params?: { year?: number; month?: number; allTime?: boolean }) {
+    const search = new URLSearchParams();
+    if (params?.year) search.append('year', params.year.toString());
+    if (params?.month) search.append('month', params.month.toString());
+    if (params?.allTime) search.append('allTime', 'true');
+
+    const query = search.toString();
     return this.request<{
       income: number;
       expenses: number;
@@ -335,7 +338,7 @@ class ApiClient {
         income: number;
         expenses: number;
       }>;
-    }>(`/api/summary/monthly?${params.toString()}`);
+    }>(`/api/summary/monthly${query ? `?${query}` : ''}`);
   }
 
   async createCheckout() {

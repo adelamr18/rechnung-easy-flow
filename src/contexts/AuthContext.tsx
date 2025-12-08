@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from 'react';
 import { apiClient } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from './LanguageContext';
 
 interface User {
   id: string;
@@ -27,6 +28,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const expiryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [user, setUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem('user');
@@ -64,12 +66,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const handleTokenExpired = useCallback(() => {
     toast({
-      title: 'Session expired',
-      description: 'Your token has expired. Please login again.',
+      title: t('auth.loginFailed'),
+      description: t('auth.errorOccurred'),
       variant: 'destructive',
     });
     void logout();
-  }, [logout, toast]);
+  }, [logout, toast, t]);
 
   const scheduleTokenExpiry = useCallback((token: string | null) => {
     clearExpiryTimer();
@@ -108,8 +110,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error: any) {
       if (error?.status === 401) {
         toast({
-          title: 'Session expired',
-          description: 'Your token has expired. Please login again.',
+          title: t('auth.loginFailed'),
+          description: t('auth.errorOccurred'),
           variant: 'destructive',
         });
       }
@@ -120,15 +122,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     apiClient.setUnauthorizedHandler((message) => {
       toast({
-        title: 'Unauthorized',
-        description: message || 'You are not authorized. Please login again.',
+        title: t('auth.loginFailed'),
+        description: message || t('auth.errorOccurred'),
         variant: 'destructive',
       });
       void logout();
     });
 
     return () => apiClient.setUnauthorizedHandler(null);
-  }, [logout, toast]);
+  }, [logout, toast, t]);
 
   useEffect(() => {
     const savedAccessToken = localStorage.getItem('accessToken');

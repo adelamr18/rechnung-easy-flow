@@ -47,6 +47,9 @@ const translations = {
     'dashboard.expenses': 'Ausgaben', 
     'dashboard.profit': 'Gewinn',
     'dashboard.thisMonth': 'Diesen Monat',
+    'dashboard.allTime': 'Gesamter Zeitraum',
+    'dashboard.selectMonth': 'Monat auswählen',
+    'dashboard.rangeLabel': 'Zeitraum',
     'dashboard.welcome': 'Willkommen',
     'dashboard.quickActions': 'Schnellaktionen',
     'dashboard.monthlyOverview': 'Monatliche Übersicht',
@@ -238,9 +241,12 @@ const translations = {
     
     'dashboard.title': 'Dashboard',
     'dashboard.income': 'Income',
-    'dashboard.expenses': 'Expenses',
+    'dashboard.expenses': 'Expenses', 
     'dashboard.profit': 'Profit',
     'dashboard.thisMonth': 'This Month',
+    'dashboard.allTime': 'All time',
+    'dashboard.selectMonth': 'Select month',
+    'dashboard.rangeLabel': 'Period',
     'dashboard.welcome': 'Welcome',
     'dashboard.quickActions': 'Quick Actions',
     'dashboard.monthlyOverview': 'Monthly Overview',
@@ -418,7 +424,7 @@ interface LanguageProviderProps {
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [language, setLanguage] = useState<Language>(() => {
     const saved = localStorage.getItem('invoice-language');
-    return (saved as Language) || 'de';
+    return (saved as Language) || 'en';
   });
 
   const handleSetLanguage = (lang: Language) => {

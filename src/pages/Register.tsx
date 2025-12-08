@@ -210,21 +210,21 @@ const Register: React.FC = () => {
       const success = await registerUser(email, password, companyName);
       if (success) {
         toast({
-          title: 'Registrierung erfolgreich',
-          description: 'Willkommen bei InvoiceEasy!',
+          title: t('auth.registerSuccess'),
+          description: t('auth.welcomeMessage'),
         });
         navigate('/dashboard');
       } else {
         toast({
-          title: 'Registrierung fehlgeschlagen',
-          description: 'Bitte überprüfen Sie Ihre Eingaben.',
+          title: t('auth.registerFailed'),
+          description: t('auth.checkInputs'),
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: 'Fehler',
-        description: 'Ein Fehler ist aufgetreten.',
+        title: t('auth.error'),
+        description: t('auth.errorOccurred'),
         variant: 'destructive',
       });
     } finally {
